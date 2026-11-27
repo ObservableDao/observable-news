@@ -1,9 +1,9 @@
 {
-  "name": "protect-history-tags",
+  "name": "protect-release-tags",
   "target": "tag",
   "enforcement": "active",
   "bypass_actors": [],
-  "conditions": { "ref_name": { "include": ["refs/tags/history-*"], "exclude": [] } },
+  "conditions": { "ref_name": { "include": ["refs/tags/history-*", "refs/tags/pub-*"], "exclude": [] } },
   "rules": [
     { "type": "deletion" },
     { "type": "non_fast_forward" },

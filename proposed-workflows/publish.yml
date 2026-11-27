@@ -1,32 +1,39 @@
 name: publish
-# PROPOSED, INACTIVE. Lives outside .github/workflows until you approve it.
-# M0 scope: accept or reject an approved desk bundle. No build, no deploy.
+# PROPOSED, INACTIVE (Stage 3 approval). Lives outside .github/workflows.
+# M0 scope: validate and acknowledge the next desk draft release. No build, no deploy.
+# The dispatch is only a wake-up call: the run reads the next sequence from the
+# verified publication head, never from the dispatch payload.
 on:
   repository_dispatch:
     types: [content-approved]
   workflow_dispatch:
 
 permissions:
-  contents: read          # read releases (desk-bundles) in this repository only
+  contents: read
 
 concurrency:
-  group: publish
+  group: publication-state
   cancel-in-progress: false
 
 jobs:
-  accept-bundle:
+  publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment: production   # main branch only; holds STATE_AGE_KEY (not used in this job)
+    environment: production   # main only; holds CHECKPOINT_SIGNING_KEY
+    permissions:
+      contents: write         # this job only: attach checkpoint, publish or delete the pub-* draft
     steps:
-      # PIN BEFORE ENABLING: full commit SHA.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
-      - name: Download newest desk bundle
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Validate, acknowledge and publish the next bundle (enforcement point)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download desk-bundles --pattern 'desk-bundle-*' --dir incoming --clobber
-      - name: Verify signature, sequence and content (enforcement point)
-        run: node scripts/accept-bundle.mjs incoming config/desk-signers.json
+          CHECKPOINT_SIGNING_KEY: ${{ secrets.CHECKPOINT_SIGNING_KEY }}
+          CHECKPOINT_KEY_ID: ${{ vars.CHECKPOINT_KEY_ID }}
+        run: node scripts/publish-run.mjs --store "github:${{ github.repository }}"

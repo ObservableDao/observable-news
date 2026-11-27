@@ -1,40 +1,36 @@
 name: history
-# PROPOSED, INACTIVE. Publishes each closed 6-hour batch as an immutable release.
-# Requires "Enable release immutability" in repository settings.
+# PROPOSED, INACTIVE AND DISABLED. No schedule. The batch generator
+# (scripts/build-history-batch.mjs) is still a fail-closed placeholder, so the
+# job is switched off with "if: false". Enable only after the generator is
+# implemented and its end-to-end tests pass.
 on:
-  schedule:
-    - cron: '17 0,6,12,18 * * *'
-      timezone: 'Etc/UTC'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: state-writer
+  group: history-writer
   cancel-in-progress: false
 
 jobs:
   publish-batch:
-    if: github.ref == 'refs/heads/main'
+    if: ${{ false }}   # DISABLED: generator not implemented
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: write     # this job only: create a draft release, attach assets, publish
     environment: production
+    permissions:
+      contents: write
     steps:
-      # PIN BEFORE ENABLING: full commit SHA.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
-      - name: Build closed batch and verify chain
-        env:
-          STATE_AGE_KEY: ${{ secrets.STATE_AGE_KEY }}
-        run: node scripts/build-history-batch.mjs out
-      - name: Draft, attach, then publish (becomes immutable)
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Build the closed batch, verify the chain, publish as an immutable release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="history-$(cat out/batch-id.txt)"
-          gh release create "$TAG" --draft --title "$TAG" --notes "Publication history batch" out/records.jsonl out/manifest.json
-          gh release edit "$TAG" --draft=false
+          STATE_AGE_KEY: ${{ secrets.STATE_AGE_KEY }}
+        run: node scripts/build-history-batch.mjs --store "github:${{ github.repository }}"

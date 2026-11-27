@@ -1,0 +1,47 @@
+name: recover
+# PROPOSED, INACTIVE (Stage 3 approval). Manual only: workflow_dispatch needs
+# Actions write access, which the dispatch token does not have.
+# Records a signed skip so publishing can continue after a forged, deleted or
+# swapped pub-* release. You must type the last good sequence.
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        type: choice
+        options: [forged-release, deleted-release, asset-swap, operator]
+        required: true
+      expect_base:
+        description: Last good publication sequence (from the halted run's log)
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publication-state
+  cancel-in-progress: false
+
+jobs:
+  skip:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Record a signed skip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECKPOINT_SIGNING_KEY: ${{ secrets.CHECKPOINT_SIGNING_KEY }}
+          CHECKPOINT_KEY_ID: ${{ vars.CHECKPOINT_KEY_ID }}
+          REASON: ${{ inputs.reason }}
+          EXPECT_BASE: ${{ inputs.expect_base }}
+        run: node scripts/recover-skip.mjs --store "github:${{ github.repository }}" --reason "$REASON" --expect-base "$EXPECT_BASE"

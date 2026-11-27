@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { mkdtempSync, copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, copyFileSync, writeFileSync, readdirSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -25,9 +25,33 @@ test('positive control: the scan catches an R2 binding and a retired bucket name
   assert.ok(rules.includes('R2 binding') && rules.includes('retired R2 bucket name'));
 });
 
-test('workflow lint: active and proposed workflows have no security problems (SHA pinning reported separately)', () => {
-  const r = run('check-workflows.mjs', join(repo, '.github/workflows'), join(repo, 'proposed-workflows'), '--allow-unpinned');
+const desk = join(repo, '..', 'observable-news-desk');
+const wfDirs = [join(repo, '.github/workflows'), join(repo, 'proposed-workflows'), join(desk, '.github/workflows'), join(desk, 'proposed-workflows')];
+
+test('strict workflow lint: every action in both repositories is pinned to its verified SHA', () => {
+  const r = run('check-workflows.mjs', ...wfDirs);
   assert.equal(r.status, 0, r.stdout);
+  assert.match(r.stdout, / 0 problem\(s\)/);
+});
+
+test('positive control: the strict lint rejects a tag, an unverified SHA and an unknown action', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'pin-'));
+  writeFileSync(join(tmp, 'x.yml'), 'on: push\npermissions:\n  contents: read\njobs:\n  x:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v6\n      - uses: actions/checkout@' + '0'.repeat(40) + '\n      - uses: someone/action@' + '1'.repeat(40) + '\n');
+  const r = run('check-workflows.mjs', tmp);
+  assert.equal(r.status, 1);
+  for (const s of ['not pinned to a full commit SHA', 'unverified SHA', 'not in the pin list']) assert.ok(r.stdout.includes(s), s);
+});
+
+test('only CI is active in either repository; nothing uses the old state file or shared release', () => {
+  assert.deepEqual(readdirSync(join(repo, '.github/workflows')), ['ci.yml']);
+  if (existsSync(desk)) assert.deepEqual(readdirSync(join(desk, '.github/workflows')), ['ci.yml']);
+  for (const d of wfDirs) {
+    if (!existsSync(d)) continue;
+    for (const f of readdirSync(d)) {
+      const t = readFileSync(join(d, f), 'utf8');
+      assert.ok(!/desk-bundles|state\/last-bundle|accept-bundle\.mjs|gh release upload/.test(t), `${f} still uses the old transport`);
+    }
+  }
 });
 
 test('positive control: the lint catches pull_request_target and secrets in a PR workflow', () => {

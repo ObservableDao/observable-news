@@ -2,86 +2,82 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { acceptBundle } from '../src/bundle/accept.mjs';
-import { buildManifest, sha256Hex, canonicalJSON } from '../src/bundle/signature.mjs';
-import { makeKey, signedBundle, sampleContent, NOW, COMMIT } from './helpers.mjs';
+import { buildManifest, sha256Hex } from '../src/bundle/signature.mjs';
+import { makeKey, signedBundle, validContent, bytesOf, NOW, COMMIT } from './helpers.mjs';
 
 const desk = makeKey('desk-2026-11');
 const trustStore = [desk.entry];
-const gate = (b, extra = {}) => acceptBundle({ ...b, trustStore, lastAcceptedSequence: 5, now: NOW, ...extra });
+const HEAD = { sequence: 5, checkpointSha256: 'c'.repeat(64) };
+const expected = { sequence: 6, basedOn: HEAD };
+const opts = { sequence: 6, basedOn: HEAD };
+const gate = (b, extra = {}) => acceptBundle({ ...b, trustStore, expected, now: NOW, ...extra });
+const altered = () => { const c = validContent(); c.corrections.push({ id: 'fake-correction', targetId: 'sample-story-not-real-news', kind: 'correction', text: 'forged', correctedAt: '2026-11-28T08:00:00Z' }); return c; };
 
-test('C0 control: a genuine signed bundle is accepted', () => {
-  const r = gate(signedBundle(sampleContent(), desk));
-  assert.equal(r.ok, true);
+test('C0 control: a genuine signed bundle built on the current head is accepted', () => {
+  assert.equal(gate(signedBundle(validContent(), desk, opts)).ok, true);
 });
 
 test('C1 forged bundle with a valid SHA-256 but no signature is rejected', () => {
-  const forged = Buffer.from(canonicalJSON(sampleContent({ corrections: [{ target: 's1', text: 'forged' }] })));
-  const manifest = buildManifest({ bundleBytes: forged, sequence: 11, sourceCommit: COMMIT, createdAt: '2026-11-28T08:00:00Z', keyId: 'desk-2026-11' });
-  assert.equal(manifest.sha256, sha256Hex(forged)); // checksum is valid...
+  const forged = bytesOf(altered());
+  const manifest = buildManifest({ bundleBytes: forged, ...opts, sourceCommit: COMMIT, createdAt: '2026-11-28T08:00:00Z', keyId: 'desk-2026-11' });
+  assert.equal(manifest.sha256, sha256Hex(forged)); // the checksum is valid...
   const r = gate({ bundleBytes: forged, manifest, signature: '' });
   assert.equal(r.ok, false); assert.equal(r.reason, 'signature-missing');
 });
 
-test('C2 bundle signed by an attacker key (unknown or impersonating key id) is rejected', () => {
-  const attacker = makeKey('desk-2026-11'); // same key id, different key
-  const r = gate(signedBundle(sampleContent(), attacker));
-  assert.equal(r.ok, false); assert.equal(r.reason, 'signature-invalid');
-  const other = makeKey('someone-else');
-  assert.equal(gate(signedBundle(sampleContent(), other)).reason, 'unknown-key');
+test('C2 bundle signed by an attacker key (impersonated or unknown key id) is rejected', () => {
+  assert.equal(gate(signedBundle(validContent(), makeKey('desk-2026-11'), opts)).reason, 'signature-invalid');
+  assert.equal(gate(signedBundle(validContent(), makeKey('someone-else'), opts)).reason, 'unknown-key');
 });
 
 test('C3 substituted content under a genuine signature is rejected', () => {
-  const genuine = signedBundle(sampleContent(), desk);
-  const substitute = Buffer.from(canonicalJSON(sampleContent({ corrections: [{ target: 's1', text: 'substituted' }] })));
-  const r = gate({ ...genuine, bundleBytes: substitute });
+  const r = gate({ ...signedBundle(validContent(), desk, opts), bundleBytes: bytesOf(altered()) });
   assert.equal(r.ok, false); assert.ok(['hash-mismatch', 'size-mismatch'].includes(r.reason));
 });
 
-test('C4 substituted manifest (attacker edits the hash to match their bundle) is rejected', () => {
-  const genuine = signedBundle(sampleContent(), desk);
-  const substitute = Buffer.from(canonicalJSON(sampleContent({ corrections: [{ target: 's1', text: 'x' }] })));
-  const manifest = { ...genuine.manifest, sha256: sha256Hex(substitute), size: substitute.length };
-  const r = gate({ bundleBytes: substitute, manifest, signature: genuine.signature });
-  assert.equal(r.ok, false); assert.equal(r.reason, 'signature-invalid');
+test('C4 substituted manifest (hash edited to match the attacker bundle) is rejected', () => {
+  const genuine = signedBundle(validContent(), desk, opts);
+  const sub = bytesOf(altered());
+  const r = gate({ bundleBytes: sub, manifest: { ...genuine.manifest, sha256: sha256Hex(sub), size: sub.length }, signature: genuine.signature });
+  assert.equal(r.reason, 'signature-invalid');
 });
 
-test('C5 replay of an older genuine bundle (rollback) is rejected', () => {
-  const old = signedBundle(sampleContent(), desk, { sequence: 5 });
-  assert.equal(gate(old).reason, 'replay-or-rollback');
-  const older = signedBundle(sampleContent(), desk, { sequence: 3 });
-  assert.equal(gate(older).reason, 'replay-or-rollback');
+test('C5 replay, rollback, skipped sequence and stale head are rejected', () => {
+  assert.equal(gate(signedBundle(validContent(), desk, { sequence: 5, basedOn: { sequence: 4, checkpointSha256: 'b'.repeat(64) } })).reason, 'replay-or-rollback');
+  assert.equal(gate(signedBundle(validContent(), desk, { sequence: 7, basedOn: { sequence: 6, checkpointSha256: 'd'.repeat(64) } })).reason, 'sequence-gap');
+  assert.equal(gate(signedBundle(validContent(), desk, { sequence: 6, basedOn: { sequence: 5, checkpointSha256: 'e'.repeat(64) } })).reason, 'based-on-mismatch');
+  assert.equal(acceptBundle({ ...signedBundle(validContent(), desk, opts), trustStore, now: NOW }).reason, 'no-verified-head');
 });
 
 test('C6 genuine signature over forbidden private fields is still rejected by the content gate', () => {
-  const leaky = signedBundle(sampleContent({ controls: { hidden: [{ target: 'item:1', reason: 'private reason' }] } }), desk, { sequence: 12 });
-  const r = gate(leaky);
-  assert.equal(r.ok, false); assert.equal(r.stage, 'content');
+  const c = validContent(); c.controls.hidden[0].reason = 'private reason';
+  const r = gate(signedBundle(c, desk, opts));
+  assert.equal(r.stage, 'content'); assert.ok(r.reason.includes('forbidden-field'));
 });
 
 test('C7 revoked and expired keys are rejected; a rotated key is accepted', () => {
   const revoked = makeKey('desk-old', { revokedAt: '2026-11-20T00:00:00Z' });
   const expired = makeKey('desk-exp', { notAfter: '2026-10-01T00:00:00Z' });
   const rotated = makeKey('desk-new', { notBefore: '2026-11-15T00:00:00Z' });
-  const store = [revoked.entry, expired.entry, rotated.entry];
-  const run = k => acceptBundle({ ...signedBundle(sampleContent(), k, { sequence: 20 }), trustStore: store, lastAcceptedSequence: 5, now: NOW });
+  const run = k => acceptBundle({ ...signedBundle(validContent(), k, opts), trustStore: [revoked.entry, expired.entry, rotated.entry], expected, now: NOW });
   assert.equal(run(revoked).reason, 'key-revoked');
   assert.equal(run(expired).reason, 'key-expired');
   assert.equal(run(rotated).ok, true);
 });
 
 test('C8 future-dated and stale bundles are rejected', () => {
-  assert.equal(gate(signedBundle(sampleContent(), desk, { sequence: 30, createdAt: '2026-11-29T09:00:00Z' })).reason, 'created-in-future');
-  assert.equal(gate(signedBundle(sampleContent(), desk, { sequence: 31, createdAt: '2026-09-01T09:00:00Z' })).reason, 'bundle-too-old');
+  assert.equal(gate(signedBundle(validContent(), desk, { ...opts, createdAt: '2026-11-29T09:00:00Z' })).reason, 'created-in-future');
+  assert.equal(gate(signedBundle(validContent(), desk, { ...opts, createdAt: '2026-09-01T09:00:00Z' })).reason, 'bundle-too-old');
 });
 
-test('A12 unreviewed AI badge and draft field are rejected even with a valid signature', () => {
-  const bad = sampleContent({
-    classifications: [{ claim: 'x', level: 'demonstrated', badgeText: 'Verified by Observable', evidence: [] }],
-    stories: [{ slug: 'd', status: 'draft', draft: true, headline: 'x', sources: [] }],
-  });
-  const r = gate(signedBundle(bad, desk, { sequence: 40 }));
-  assert.equal(r.ok, false); assert.equal(r.stage, 'content');
-  for (const e of ['forbidden-field', 'story-not-approved', 'classification-without-evidence', 'classification-unreviewed', 'classification-says-verified']) {
-    assert.ok(r.reason.includes(e), `expected ${e}`);
+test('A12 unreviewed AI badge and draft story are rejected even with a valid signature', () => {
+  const c = validContent();
+  c.classifications[0] = { ...c.classifications[0], badgeText: 'Verified by Observable', evidence: [] };
+  delete c.classifications[0].review;
+  c.stories[0] = { ...c.stories[0], status: 'draft', draft: true };
+  const r = gate(signedBundle(c, desk, opts));
+  assert.equal(r.stage, 'content');
+  for (const e of ['forbidden-field:$.stories[0].draft', 'const:$.stories[0].status', 'min-items:$.classifications[0].evidence', 'required:$.classifications[0].review']) {
+    assert.ok(r.errors.includes(e), `expected ${e}`);
   }
 });

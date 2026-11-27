@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "stories": [
+    {
+      "id": "sample-story-not-real-news",
+      "status": "approved",
+      "headline": "SAMPLE CONTENT: Example approved story for M0 tests",
+      "summary": "SAMPLE CONTENT: a short summary that the source licence allows us to show.",
+      "sources": [
+        {
+          "publisher": "Example Publisher (sample)",
+          "url": "https://example.com/sample",
+          "date": "2026-11-27",
+          "permission": {
+            "basis": "licence",
+            "rights": { "headline": true, "summary": true, "quote": false, "image": false },
+            "evidenceId": "ev-sample-licence-0001",
+            "evidenceSha256": "0000000000000000000000000000000000000000000000000000000000000001",
+            "checkedBy": "editor-sample",
+            "checkedAt": "2026-11-27T09:00:00Z"
+          }
+        }
+      ],
+      "imageId": "sample-image-0001",
+      "approval": { "method": "automated-rules", "by": "pipeline-sample", "at": "2026-11-27T09:05:00Z" }
+    }
+  ],
+  "explainers": [
+    {
+      "id": "sample-explainer-0001",
+      "title": "SAMPLE CONTENT: How an example process works",
+      "body": "SAMPLE CONTENT: explainer body text.",
+      "references": [{ "title": "Example reference (sample)", "publisher": "Example Library", "url": "https://example.org/reference", "accessedAt": "2026-11-27" }],
+      "relatedStoryIds": ["sample-story-not-real-news"],
+      "review": { "status": "reviewed", "reviewedBy": "editor-sample", "reviewedAt": "2026-11-27T09:10:00Z" }
+    }
+  ],
+  "classifications": [
+    {
+      "id": "sample-classification-0001",
+      "target": "sample-story-not-real-news",
+      "claim": "SAMPLE CONTENT: example claim",
+      "level": "reported",
+      "badgeText": "Reported by Example Outlet (sample)",
+      "origin": "ai-assisted",
+      "evidence": [
+        { "type": "news-report", "publisher": "Example Outlet (sample)", "url": "https://example.com/evidence", "date": "2026-11-27", "excerpt": "SAMPLE excerpt supporting the classification.", "retrievedAt": "2026-11-27T08:55:00Z" }
+      ],
+      "review": { "status": "reviewed", "reviewedBy": "editor-sample", "reviewedAt": "2026-11-27T09:12:00Z" }
+    }
+  ],
+  "images": [
+    {
+      "id": "sample-image-0001",
+      "src": "https://example.com/sample-image.jpg",
+      "alt": "SAMPLE CONTENT: placeholder description",
+      "verified": true,
+      "licence": { "name": "CC BY 4.0", "url": "https://creativecommons.org/licenses/by/4.0/" },
+      "attribution": { "creator": "Example Photographer (sample)", "sourceUrl": "https://example.com/photo-page", "creditLine": "Photo: Example Photographer (sample), CC BY 4.0" },
+      "permission": { "evidenceId": "ev-sample-image-0001", "evidenceSha256": "0000000000000000000000000000000000000000000000000000000000000002", "checkedBy": "editor-sample", "checkedAt": "2026-11-27T09:00:00Z" }
+    }
+  ],
+  "corrections": [],
+  "controls": { "featured": ["sample-story-not-real-news"], "hidden": [{ "target": "item:sample-0001", "until": "2026-12-31" }], "grouping": [] }
+}

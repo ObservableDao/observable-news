@@ -11,13 +11,13 @@ Observable Dao are involved.
 | Setting | Value |
 | --- | --- |
 | Visibility | Public |
-| Settings → General → Releases | **Enable release immutability** (applies to future releases only) |
-| Settings → Actions → General → Actions permissions | Allow ObservableDao actions and select non-ObservableDao actions: only `actions/checkout`, pinned to a full commit SHA |
+| Settings → General → Releases | **Enable release immutability** before any `pub-*` or `history-*` release exists (applies to future releases only; the gate refuses non-immutable releases) |
+| Settings → Actions → General → Actions permissions | Allow ObservableDao actions and select non-ObservableDao actions: only `actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3` (v6.0.0) and `actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903` (v6.0.0). Tick "Require actions to be pinned to a full-length commit SHA" if offered |
 | Settings → Actions → General → Fork pull request workflows | Require approval for all external contributors |
 | Settings → Actions → General → Workflow permissions | Read repository contents and packages permissions; "Allow GitHub Actions to create and approve pull requests" **off** |
-| Settings → Rules → Rulesets | Import `config/rulesets/protect-main.json` and `config/rulesets/protect-history-tags.json`, bypass list empty |
+| Settings → Rules → Rulesets | After the first push, import `config/rulesets/protect-main.json` and `config/rulesets/protect-release-tags.json` (`history-*` and `pub-*`), bypass list empty |
 | Settings → Code security | Secret scanning and push protection **on**; Dependabot alerts **on** |
-| Settings → Environments | `production`: deployment branches = `main` only; no secrets yet |
+| Settings → Environments | `production`: deployment branches = `main` only; no secrets yet; no required reviewer (publishing is unattended) |
 | Collaborators | None |
 
 ### ObservableDao/observable-news-desk (private, GitHub Free)
@@ -47,20 +47,21 @@ Node 22 LTS and Git. No Cloudflare login, no Wrangler, no tokens.
 
 | Credential | Where | Exact permissions | Expiry | What it can do if misused |
 | --- | --- | --- | --- | --- |
-| Desk signing key (Ed25519) | Private repo secrets `DESK_SIGNING_KEY`, `DESK_KEY_ID`; public key in `config/desk-signers.json` via pull request | Signs bundle manifests only | Rotate every 6 months; revoke by setting `revokedAt` | Sign bundles that pass authenticity — content rules still apply |
-| `observable-news-dispatch` fine-grained token | Private repo secret `PUBLIC_DISPATCH_TOKEN` | Repository: observable-news only. Contents: read and write. Metadata: read. | 90 days | Start runs; upload/delete mutable release assets; cannot push code (ruleset); cannot alter immutable history releases; cannot sign bundles |
-| State encryption key (age) | Public `production` environment secret `STATE_AGE_KEY` | Decrypts state artifacts | Rotate if exposed | Read encrypted working state |
+| Desk signing key (Ed25519) | Private repo secrets `DESK_SIGNING_KEY`, `DESK_KEY_ID`; public key in `config/desk-signers.json` via pull request | Signs bundle manifests only | Rotate every 6 months; revoke with `revokedAt` | Sign bundles for the next sequence; content rules still apply |
+| Checkpoint signing key (Ed25519) | Public `production` environment secret `CHECKPOINT_SIGNING_KEY`, variable `CHECKPOINT_KEY_ID`; public key in `config/checkpoint-signers.json` via pull request | Signs publication checkpoints only | Rotate every 6 months | Acknowledge a bundle; it never leaves the public production environment |
+| `observable-news-dispatch` fine-grained token | Private repo secret `PUBLIC_DISPATCH_TOKEN` | Repository: observable-news only. Contents: read and write. Metadata: read. Nothing else (no Actions, no Administration) | 90 days | Create pub-* drafts, trigger publish runs, delete releases (halts publishing, cannot roll back); cannot sign, push to main, alter published releases or run recovery |
+| State encryption key (age) | Public `production` environment secret `STATE_AGE_KEY` | Decrypts the open history batch | Rotate if exposed | Deferred: not needed until the history generator exists |
 
-Generated on your laptop by you; values never shown to Claude.
+You generate these on your laptop; the values are never shown to Claude.
 
 ## Stage 3 — NOT yet approved: automated workflows
 
 | Workflow | Repo | Trigger | Permissions |
 | --- | --- | --- | --- |
-| `publish.yml` | public | repository_dispatch `content-approved`, manual | `contents: read`; environment `production` |
-| `history.yml` | public | 00:17, 06:17, 12:17, 18:17 UTC | workflow `contents: read`; job `contents: write` (create draft, attach, publish) |
-| `export.yml` | private | push to main | `contents: read`; uses `PUBLIC_DISPATCH_TOKEN`, `DESK_SIGNING_KEY` |
-| `mirror-history.yml` | private | daily 03:41 London | job `contents: write` in the private repo only |
+| `publish.yml` | public | repository_dispatch `content-approved`, manual | workflow `contents: read`; job `contents: write` (attach checkpoint, publish or delete the `pub-*` draft); environment `production` |
+| `recover.yml` | public | manual only | job `contents: write`; environment `production`; you type the last good sequence |
+| `export.yml` | private | push to main changing `content/approved.json` | `contents: read`; uses `PUBLIC_DISPATCH_TOKEN`, `DESK_SIGNING_KEY` |
+| `history.yml` | public | **disabled** (no schedule, `if: false`) | stays off until the batch generator is implemented and tested |
+| `mirror-history.yml` | private | **disabled** (no schedule, `if: false`) | stays off with `history.yml` |
 
-Before enabling: pin every action to a full commit SHA (`check-workflows.mjs` fails otherwise) and
-pin the public validator commit in the private workflows.
+Before enabling: replace `PIN_PUBLIC_COMMIT_SHA` with the public repository's first verified commit, and run live tests T-L1 to T-L4.

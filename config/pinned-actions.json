@@ -1,0 +1,24 @@
+{
+  "_comment": "The only third-party actions any workflow may use, pinned to full commit SHAs. check-workflows.mjs rejects any other action or SHA. Re-verify before changing.",
+  "actions": {
+    "actions/checkout": {
+      "sha": "1af3b93b6815bc44a9784bd300feb67ff0d1eeb3",
+      "version": "v6.0.0",
+      "verifiedFrom": [
+        "https://github.com/cpp-linter/cpp-linter-action/pull/376 (pin 1af3b93b... # v6.0.0)",
+        "https://pigweed.googlesource.com/third_party/github/bazelbuild/rules_python/+/0737a0bc24e0f9c5a767f34648372e26a14dc25e (Dependabot v5->v6: head commit 1af3b93 'update readme/changelog for v6 (#2311)')"
+      ],
+      "verifiedOn": "2026-11-27"
+    },
+    "actions/setup-node": {
+      "sha": "2028fbc5c25fe9cf00d9f06a71cc4710d4507903",
+      "version": "v6.0.0",
+      "verifiedFrom": [
+        "https://gitea.psi.ch/actions/setup-uv/commit/ce6dbd84e16b87aae956dc7c4caa8fd37a0af793.patch (setup-node@2028fbc5... # v6.0.0)",
+        "https://gitea.psi.ch/actions/setup-node/commit/2028fbc5c25fe9cf00d9f06a71cc4710d4507903 (commit exists in a mirror of actions/setup-node)"
+      ],
+      "verifiedOn": "2026-11-27",
+      "recheckBeforeEnabling": "single independent release-to-SHA source; confirm with: git ls-remote https://github.com/actions/setup-node refs/tags/v6.0.0"
+    }
+  }
+}

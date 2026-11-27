@@ -1,0 +1,4 @@
+{
+  "_comment": "Public keys trusted to sign publication checkpoints (pub-* releases). The private key lives only in the public repository's production environment. Empty until you approve key generation. Changes need a pull request under the protect-main ruleset.",
+  "keys": []
+}
