@@ -92,7 +92,9 @@ export async function runSkip({ store, checkpointTrust, checkpointKey, checkpoin
     const seq = seqFromTag(r.tag);
     if (seq <= base.sequence) continue;
     const v = await verifyPublication(store, r, checkpointTrust, now);
-    if (v.ok) start = Math.max(start, seq);           // genuine but cut off from the chain: keep it, skip above it
+    // Keep genuine releases cut off from the chain, and releases signed by a
+    // revoked checkpoint key (history is preserved, never trusted): skip above them.
+    if (v.ok || v.problem === 'checkpoint-key-revoked') start = Math.max(start, seq);
     else { await store.remove(r.id); removed.push({ sequence: seq, problem: v.problem }); }
   }
 

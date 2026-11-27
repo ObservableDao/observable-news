@@ -268,3 +268,20 @@ test('X14 the full sequence space halts cleanly instead of overflowing', async (
   const r = w.publishRun();
   assert.deepEqual([r.status, r.out.reason], [2, 'sequence-space-exhausted']);
 });
+
+test('X15 a revoked checkpoint key halts publishing; recovery keeps the old releases and resumes', async () => {
+  const w = world(); w.publishOne(); w.publishOne();
+  const replacement = makeKey('checkpoint-next');
+  writeFileSync(w.cpTrust, JSON.stringify({ keys: [{ ...w.cpk.entry, revokedAt: new Date(Date.now() - 1000).toISOString() }, replacement.entry] }));
+  assert.equal(w.publishRun().out.reason, 'checkpoint-key-revoked');
+  w.cpk = replacement;                                     // operator switches the production secret
+  const r = spawnSync(process.execPath, [join(repo, 'scripts/recover-skip.mjs'), '--store', w.spec, '--reason', 'operator', '--expect-base', '0', '--checkpoint-signers', w.cpTrust],
+    { cwd: mkdtempSync(join(tmpdir(), 'runner-')), encoding: 'utf8', env: { PATH: process.env.PATH, CHECKPOINT_SIGNING_KEY: replacement.pem, CHECKPOINT_KEY_ID: 'checkpoint-next' } });
+  const out = lastJSON(r.stdout);
+  assert.deepEqual([out.status, out.sequence, out.removed], ['skipped', 3, 0]);
+  for (const t of [tagFor(1), tagFor(2)]) assert.ok(await published(w.store, t), `${t} kept`);
+  const e = w.exportRun(); assert.equal(e.out.sequence, 4);
+  const p = spawnSync(process.execPath, [join(repo, 'scripts/publish-run.mjs'), '--store', w.spec, '--desk-signers', w.deskTrust, '--checkpoint-signers', w.cpTrust],
+    { cwd: mkdtempSync(join(tmpdir(), 'runner-')), encoding: 'utf8', env: { PATH: process.env.PATH, CHECKPOINT_SIGNING_KEY: replacement.pem, CHECKPOINT_KEY_ID: 'checkpoint-next' } });
+  assert.equal(lastJSON(p.stdout).status, 'accepted');
+});
