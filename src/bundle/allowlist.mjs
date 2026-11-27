@@ -27,17 +27,19 @@ const PERMISSION = T.object({
   expiresAt: T.datetime(),
 }, ['expiresAt']);
 
-const SOURCE = T.object({ publisher: T.text(120), url: T.https(), date: T.date(), permission: PERMISSION });
+const SOURCE = T.object({ id: ID, publisher: T.text(120), url: T.https(), date: T.date(), permission: PERMISSION });
 
 const STORY = T.object({
   id: ID,
   status: T.literal('approved'),
   headline: T.text(200),
+  headlineSourceId: ID,          // the source whose text the headline is; its own rights apply
   summary: T.text(1200),
+  summarySourceId: ID,           // required whenever summary is present
   sources: T.array(SOURCE, { min: 1, max: 20 }),
   imageId: ID,
   approval: T.object({ method: T.oneOf('automated-rules', 'editor'), by: HANDLE, at: T.datetime() }),
-}, ['summary', 'imageId']);
+}, ['summary', 'summarySourceId', 'imageId']);
 
 const REFERENCE = T.object({ title: T.text(200), publisher: T.text(120), url: T.https(), accessedAt: T.date() });
 
@@ -131,9 +133,22 @@ function semanticChecks(d, now, errors) {
     const p = `$.stories[${i}]`;
     if (future(s.approval.at)) errors.push(`in-future:${p}.approval.at`);
     if (s.imageId && !images.has(s.imageId)) errors.push(`dangling-image:${p}.imageId`);
-    const rights = s.sources.map(src => src.permission.rights);
-    if (!rights.some(r => r.headline)) errors.push(`headline-without-permission:${p}`);
-    if (s.summary && !rights.some(r => r.summary)) errors.push(`summary-without-permission:${p}`);
+    // Each displayed publisher-owned text field is bound to exactly one source,
+    // and only THAT source's recorded rights count. Another publisher's
+    // permission never covers it.
+    const byId = new Map();
+    s.sources.forEach((src, j) => { if (byId.has(src.id)) errors.push(`duplicate-source-id:${p}.sources[${j}]`); else byId.set(src.id, src); });
+    const owner = s.headlineSourceId && byId.get(s.headlineSourceId);
+    if (!owner) errors.push(`dangling-source:${p}.headlineSourceId`);
+    else if (!owner.permission.rights.headline) errors.push(`headline-without-permission:${p}.headlineSourceId`);
+    if (s.summary !== undefined) {
+      if (s.summarySourceId === undefined) errors.push(`required:${p}.summarySourceId`);
+      else {
+        const so = byId.get(s.summarySourceId);
+        if (!so) errors.push(`dangling-source:${p}.summarySourceId`);
+        else if (!so.permission.rights.summary) errors.push(`summary-without-permission:${p}.summarySourceId`);
+      }
+    } else if (s.summarySourceId !== undefined) errors.push(`summary-source-without-summary:${p}.summarySourceId`);
     s.sources.forEach((src, j) => {
       const q = `${p}.sources[${j}].permission`, perm = src.permission;
       if (perm.basis === 'link-and-headline-only' && (perm.rights.summary || perm.rights.quote || perm.rights.image)) errors.push(`rights-exceed-basis:${q}`);
