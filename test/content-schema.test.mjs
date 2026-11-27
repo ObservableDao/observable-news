@@ -28,8 +28,8 @@ rejects('N2 permission record without evidence id', c => { delete src(c).permiss
 rejects('N3 permission evidence hash that is not a SHA-256', c => { src(c).permission.evidenceSha256 = 'abc'; }, 'pattern:$.stories[0].sources[0].permission.evidenceSha256');
 rejects('N4 approved story with no sources at all', c => { story(c).sources = []; }, 'min-items:$.stories[0].sources');
 rejects('N5 "approved" status with no approval record', c => { delete story(c).approval; }, 'required:$.stories[0].approval');
-rejects('N6 summary shown without summary rights', c => { src(c).permission.rights.summary = false; }, 'summary-without-permission:$.stories[0]');
-rejects('N7 headline shown without headline rights', c => { src(c).permission.rights.headline = false; }, 'headline-without-permission:$.stories[0]');
+rejects('N6 summary shown without summary rights', c => { src(c).permission.rights.summary = false; }, 'summary-without-permission:$.stories[0].summarySourceId');
+rejects('N7 headline shown without headline rights', c => { src(c).permission.rights.headline = false; }, 'headline-without-permission:$.stories[0].headlineSourceId');
 rejects('N8 link-only basis claiming summary rights', c => { src(c).permission.basis = 'link-and-headline-only'; }, 'rights-exceed-basis:$.stories[0].sources[0].permission');
 rejects('N9 expired source permission', c => { src(c).permission.expiresAt = '2026-11-01T00:00:00Z'; }, 'permission-expired:$.stories[0].sources[0].permission');
 rejects('N10 source URL that is not https', c => { src(c).url = 'http://example.com/a'; }, 'https-url:$.stories[0].sources[0].url');
@@ -65,6 +65,28 @@ rejects('N31 duplicate ids', c => { c.explainers[0].id = c.stories[0].id; }, 'du
 rejects('N32 future-dated review', c => { c.explainers[0].review.reviewedAt = '2027-01-01T00:00:00Z'; }, 'in-future:$.explainers[0].review.reviewedAt');
 rejects('N33 control characters in text', c => { story(c).headline = 'bad\u0007text'; }, 'control-chars:$.stories[0].headline');
 rejects('N34 featured item that does not exist', c => { c.controls.featured = ['ghost']; }, 'dangling-target:$.controls.featured[0]');
+
+// Publisher-bound text rights: another publisher's permission must not cover
+// text owned by a source that has none (independent review, finding 1).
+const addPermittedSecondPublisher = c => {
+  story(c).sources.push({ ...structuredClone(src(c)), id: 'src-second-publisher', publisher: 'Second Publisher (sample)', url: 'https://example.net/b' });
+};
+const ownerHasNoRights = c => { src(c).permission.rights = { headline: false, summary: false, quote: false, image: false }; };
+rejects('N36 multi-publisher: owner of the headline has no rights, a second publisher does', c => { addPermittedSecondPublisher(c); ownerHasNoRights(c); }, 'headline-without-permission:$.stories[0].headlineSourceId');
+rejects('N37 multi-publisher: owner of the summary has no rights, a second publisher does', c => { addPermittedSecondPublisher(c); ownerHasNoRights(c); }, 'summary-without-permission:$.stories[0].summarySourceId');
+rejects('N38 multi-publisher: headline owner has rights but the summary owner does not', c => {
+  addPermittedSecondPublisher(c); story(c).sources[1].permission.rights.summary = false; story(c).summarySourceId = 'src-second-publisher';
+}, 'summary-without-permission:$.stories[0].summarySourceId');
+test('N39 multi-publisher control: text bound to the publisher that granted it is accepted', () => {
+  const c = validContent(); addPermittedSecondPublisher(c); ownerHasNoRights(c);
+  story(c).headlineSourceId = 'src-second-publisher'; story(c).summarySourceId = 'src-second-publisher';
+  assert.deepEqual(check(c).errors, []);
+});
+rejects('N40 headline bound to a source that is not listed', c => { story(c).headlineSourceId = 'src-missing'; }, 'dangling-source:$.stories[0].headlineSourceId');
+rejects('N41 summary with no owning source', c => { delete story(c).summarySourceId; }, 'required:$.stories[0].summarySourceId');
+rejects('N42 summary owner named but no summary shown', c => { delete story(c).summary; }, 'summary-source-without-summary:$.stories[0].summarySourceId');
+rejects('N43 duplicate source ids within a story', c => { addPermittedSecondPublisher(c); story(c).sources[1].id = src(c).id; }, 'duplicate-source-id:$.stories[0].sources[1]');
+rejects('N44 headline owner missing entirely', c => { delete story(c).headlineSourceId; }, 'required:$.stories[0].headlineSourceId');
 
 test('N35 non-JSON and oversized bundles are rejected', () => {
   assert.deepEqual(validateBundleContent(Buffer.from('{not json')).errors, ['not-json']);
