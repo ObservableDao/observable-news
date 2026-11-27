@@ -15,9 +15,9 @@ import { canonicalJSON } from '../src/bundle/signature.mjs';
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-async function setup(n = 8) {
+async function setup(n = 8, { mirrorImmutable = true } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'mirror-'));
-  const pub = new FsReleaseStore(join(root, 'public')), mir = new FsReleaseStore(join(root, 'private'));
+  const pub = new FsReleaseStore(join(root, 'public')), mir = new FsReleaseStore(join(root, 'private'), { immutableReleases: mirrorImmutable });
   let prev = 'genesis', id = '2026-11-01T00'; const batches = [];
   for (let i = 0; i < n; i++) {
     const b = makeBatch({ batchId: id, records: [{ kind: 'item', id: `${id}-1`, url: 'https://example.com/1' }], prevManifestSha256: prev, createdAt: `${id}:00:00Z` });
@@ -96,4 +96,22 @@ test('M6 the disabled history workflows stay disabled and unscheduled', () => {
   }
   const gen = spawnSync(process.execPath, [join(repo, 'scripts/build-history-batch.mjs')], { encoding: 'utf8' });
   assert.equal(gen.status, 1, 'the batch generator placeholder fails closed');
+});
+
+test('M7 the mirror stops at the first copy if private releases come out mutable', async () => {
+  const { pub, mir, batches, run } = await setup(4, { mirrorImmutable: false });
+  await publishN(pub, batches);
+  const r = run();
+  assert.deepEqual([r.status, r.h.mirrorNotImmutable, r.h.copied.length], [1, true, 1]);
+  const again = run();
+  assert.deepEqual([again.status, again.h.mirrorNotImmutable, again.h.copied.length], [1, true, 0], 'refuses to copy any more');
+});
+
+test('M8 an existing mutable mirror release blocks all copying', async () => {
+  const { pub, mir, batches, run } = await setup(4, { mirrorImmutable: false });
+  await publishBatch(mir, 'mirror-history-', batches[0]);   // left over from before immutability was enabled
+  new FsReleaseStore(mir.dir, { immutableReleases: true });  // turning it on later does not fix old releases
+  await publishN(pub, batches);
+  const r = run();
+  assert.deepEqual([r.status, r.h.mirrorNotImmutable, r.h.copied], [1, true, []]);
 });
