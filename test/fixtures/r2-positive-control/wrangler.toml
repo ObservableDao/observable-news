@@ -1,0 +1,4 @@
+# Positive control for the forbidden-dependency scan. Never deployed.
+[[r2_buckets]]
+binding = "STATE"
+bucket_name = "obs-state"

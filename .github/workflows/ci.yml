@@ -1,0 +1,29 @@
+name: ci
+# Active in M0. No secrets, no deploy, no Cloudflare. Safe for fork pull requests.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # PIN BEFORE ENABLING: replace the tag with the full commit SHA of actions/checkout v4.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Unit and security tests
+        run: node --test "test/*.test.mjs"
+      - name: Forbidden-dependency scan (metered Cloudflare products)
+        run: node scripts/check-forbidden.mjs .
+      - name: Workflow security lint (strict: fails on unpinned actions)
+        run: node scripts/check-workflows.mjs .github/workflows proposed-workflows

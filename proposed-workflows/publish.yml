@@ -1,0 +1,32 @@
+name: publish
+# PROPOSED, INACTIVE. Lives outside .github/workflows until you approve it.
+# M0 scope: accept or reject an approved desk bundle. No build, no deploy.
+on:
+  repository_dispatch:
+    types: [content-approved]
+  workflow_dispatch:
+
+permissions:
+  contents: read          # read releases (desk-bundles) in this repository only
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  accept-bundle:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production   # main branch only; holds STATE_AGE_KEY (not used in this job)
+    steps:
+      # PIN BEFORE ENABLING: full commit SHA.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download newest desk bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download desk-bundles --pattern 'desk-bundle-*' --dir incoming --clobber
+      - name: Verify signature, sequence and content (enforcement point)
+        run: node scripts/accept-bundle.mjs incoming config/desk-signers.json

@@ -1,0 +1,40 @@
+name: history
+# PROPOSED, INACTIVE. Publishes each closed 6-hour batch as an immutable release.
+# Requires "Enable release immutability" in repository settings.
+on:
+  schedule:
+    - cron: '17 0,6,12,18 * * *'
+      timezone: 'Etc/UTC'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: state-writer
+  cancel-in-progress: false
+
+jobs:
+  publish-batch:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write     # this job only: create a draft release, attach assets, publish
+    environment: production
+    steps:
+      # PIN BEFORE ENABLING: full commit SHA.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build closed batch and verify chain
+        env:
+          STATE_AGE_KEY: ${{ secrets.STATE_AGE_KEY }}
+        run: node scripts/build-history-batch.mjs out
+      - name: Draft, attach, then publish (becomes immutable)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="history-$(cat out/batch-id.txt)"
+          gh release create "$TAG" --draft --title "$TAG" --notes "Publication history batch" out/records.jsonl out/manifest.json
+          gh release edit "$TAG" --draft=false

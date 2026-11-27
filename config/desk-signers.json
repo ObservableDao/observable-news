@@ -1,0 +1,4 @@
+{
+  "_comment": "Public keys trusted to sign desk bundles. Empty until you approve key generation. Changes need a pull request under the protect-main ruleset.",
+  "keys": []
+}
