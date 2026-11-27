@@ -27,6 +27,15 @@ for (const dir of dirs) {
     if (/pull_request_target/.test(text)) problems.push(`${path}: uses pull_request_target`);
     if (/write-all/.test(text)) problems.push(`${path}: uses write-all`);
     if (/\bpull_request\b/.test(onBlock) && /secrets\./.test(text)) problems.push(`${path}: pull-request workflow references secrets`);
+    // YAML trap: an unquoted plain value containing ": " is invalid and GitHub
+    // rejects the whole file without running any job.
+    text.split('\n').forEach((line, i) => {
+      const m = /^\s*(?:-\s+)?[A-Za-z_][\w-]*:\s+(.*)$/.exec(line);
+      if (!m) return;
+      const v = m[1].replace(/\s+#.*$/, '');
+      if (/^["'|>{[&*!]/.test(v)) return;
+      if (/:\s/.test(v)) problems.push(`${path}:${i + 1}: unquoted value contains ": " (invalid YAML)`);
+    });
     for (const m of text.matchAll(/\bPIN_[A-Z_]+/g)) warnings.push(`${path}: placeholder ${m[0]} must be filled in before enabling`);
     for (const m of text.matchAll(/uses:\s*([^\s#]+)/g)) {
       const ref = m[1];
