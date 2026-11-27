@@ -42,6 +42,14 @@ test('positive control: the strict lint rejects a tag, an unverified SHA and an 
   for (const s of ['not pinned to a full commit SHA', 'unverified SHA', 'not in the pin list']) assert.ok(r.stdout.includes(s), s);
 });
 
+test('positive control: the lint rejects an unquoted value containing ": " (invalid YAML)', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'yaml-'));
+  writeFileSync(join(tmp, 'x.yml'), 'on: push\npermissions:\n  contents: read\njobs:\n  x:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Lint (strict: pinned)\n        run: echo hi\n');
+  const r = run('check-workflows.mjs', tmp);
+  assert.equal(r.status, 1);
+  assert.ok(r.stdout.includes('invalid YAML'), r.stdout);
+});
+
 test('only CI is active in either repository; nothing uses the old state file or shared release', () => {
   assert.deepEqual(readdirSync(join(repo, '.github/workflows')), ['ci.yml']);
   if (existsSync(desk)) assert.deepEqual(readdirSync(join(desk, '.github/workflows')), ['ci.yml']);
