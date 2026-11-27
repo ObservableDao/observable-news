@@ -59,7 +59,7 @@ export function verifySignedObject({ domain, obj, signature, keyId, createdAt, t
 }
 
 export function buildManifest({ bundleBytes, sequence, basedOn, sourceCommit, createdAt, keyId, schemaVersion = 1 }) {
-  if (!Number.isSafeInteger(sequence) || sequence < 1) throw new Error('sequence must be a positive integer');
+  if (!Number.isSafeInteger(sequence) || sequence < 1 || sequence > 99_999_999) throw new Error('sequence must be 1..99999999');
   if (!/^[0-9a-f]{40}$/.test(sourceCommit)) throw new Error('sourceCommit must be a 40-char hex SHA');
   if (!basedOn || basedOn.sequence !== sequence - 1 || typeof basedOn.checkpointSha256 !== 'string') throw new Error('basedOn must name the current head');
   return {
@@ -93,7 +93,7 @@ export function verifyBundle({ bundleBytes, manifest, signature, trustStore, exp
   if (!Buffer.isBuffer(bundleBytes) || manifest.size !== bundleBytes.length) return fail('size-mismatch');
   if (manifest.sha256 !== sha256Hex(bundleBytes)) return fail('hash-mismatch');
 
-  if (!Number.isSafeInteger(manifest.sequence)) return fail('sequence-invalid');
+  if (!Number.isSafeInteger(manifest.sequence) || manifest.sequence < 1 || manifest.sequence > 99_999_999) return fail('sequence-invalid');
   if (manifest.sequence < expected.sequence) return fail('replay-or-rollback');
   if (manifest.sequence > expected.sequence) return fail('sequence-gap');
   const b = manifest.basedOn || {};
