@@ -28,5 +28,5 @@ jobs:
         run: node --test "test/*.test.mjs"
       - name: Forbidden-dependency scan (metered Cloudflare products)
         run: node scripts/check-forbidden.mjs .
-      - name: Workflow security lint (strict: pinned SHAs from config/pinned-actions.json)
+      - name: Workflow security lint (strict, pinned SHAs from config/pinned-actions.json)
         run: node scripts/check-workflows.mjs .github/workflows proposed-workflows
