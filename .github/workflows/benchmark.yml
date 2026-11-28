@@ -1,0 +1,63 @@
+name: benchmark
+# M0 benchmarks. Read-only: no secrets, no writes, no deploy, no schedule.
+# Runs on pull requests that change the pipeline or the register, or by hand.
+# The live job contacts only registered sources whose Fetch right is confirmed,
+# with an identified user agent and robots.txt honoured.
+on:
+  pull_request:
+    paths:
+      - 'scripts/bench*.mjs'
+      - 'bench/**'
+      - 'src/ingest/**'
+      - 'src/build/**'
+      - 'config/sources.json'
+      - '.github/workflows/benchmark.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Fixture benchmarks, 20 runs per stage, with Pagefind
+        run: node scripts/bench.mjs --runs 20 --pagefind --out bench-out
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: benchmark-fixtures
+          path: bench-out
+          retention-days: 30
+
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Live feeds and terms archive
+        run: node scripts/bench-live.mjs --out live-out
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: benchmark-live-and-terms-evidence
+          path: live-out
+          retention-days: 90

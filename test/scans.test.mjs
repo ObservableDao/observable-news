@@ -50,8 +50,12 @@ test('positive control: the lint rejects an unquoted value containing ": " (inva
   assert.ok(r.stdout.includes('invalid YAML'), r.stdout);
 });
 
-test('only CI is active in either repository; nothing uses the old state file or shared release', () => {
-  assert.deepEqual(readdirSync(join(repo, '.github/workflows')), ['ci.yml']);
+test('only CI and the read-only benchmark are active; nothing uses the old state file or shared release', () => {
+  assert.deepEqual(readdirSync(join(repo, '.github/workflows')).sort(), ['benchmark.yml', 'ci.yml']);
+  const bench = readFileSync(join(repo, '.github/workflows/benchmark.yml'), 'utf8');
+  assert.ok(!/secrets\./.test(bench), 'benchmark uses no secrets');
+  assert.ok(!/:\s*write\b/.test(bench), 'benchmark has no write permission');
+  assert.ok(!/^\s*schedule:/m.test(bench), 'benchmark has no schedule');
   if (existsSync(desk)) assert.deepEqual(readdirSync(join(desk, '.github/workflows')), ['ci.yml']);
   for (const d of wfDirs) {
     if (!existsSync(d)) continue;
