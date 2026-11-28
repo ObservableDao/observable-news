@@ -56,7 +56,16 @@ test('only CI and the read-only benchmark are active; nothing uses the old state
   assert.ok(!/secrets\./.test(bench), 'benchmark uses no secrets');
   assert.ok(!/:\s*write\b/.test(bench), 'benchmark has no write permission');
   assert.ok(!/^\s*schedule:/m.test(bench), 'benchmark has no schedule');
-  if (existsSync(desk)) assert.deepEqual(readdirSync(join(desk, '.github/workflows')), ['ci.yml']);
+  if (existsSync(desk)) {
+    const deskActive = readdirSync(join(desk, '.github/workflows')).sort();
+    assert.ok(deskActive.every(f => ['archive-terms.yml', 'ci.yml'].includes(f)), `unexpected desk workflow: ${deskActive}`);
+    if (deskActive.includes('archive-terms.yml')) {
+      const a = readFileSync(join(desk, '.github/workflows/archive-terms.yml'), 'utf8');
+      assert.match(a, /on:\s*\n\s*workflow_dispatch:\s*\n\s*\npermissions:/, 'archive-terms is manual only');
+      assert.ok(!/secrets\./.test(a), 'archive-terms uses no secrets');
+      assert.match(a, /if: github\.ref == 'refs\/heads\/main'/);
+    }
+  }
   for (const d of wfDirs) {
     if (!existsSync(d)) continue;
     for (const f of readdirSync(d)) {
