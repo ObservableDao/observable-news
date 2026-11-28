@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { parseFeed, discoverFeeds } from '../src/ingest/feed.mjs';
+import { parseFeed, discoverFeeds, htmlToText } from '../src/ingest/feed.mjs';
 import { normaliseItem } from '../src/ingest/normalise.mjs';
 import { collect, emptyState } from '../src/ingest/collect.mjs';
 import { MAX_FEED_BYTES } from '../src/ingest/xml.mjs';
@@ -56,7 +56,9 @@ async function probeSource(s) {
   if (s.termsUrl) {
     const t = await get(s.termsUrl);
     out.terms = { url: s.termsUrl, status: t.status, bytes: t.body?.length || 0, retrievedAt: new Date().toISOString() };
-    if (t.status === 200) { out.terms.sha256 = createHash('sha256').update(t.body).digest('hex'); mkdirSync(join(OUT, 'evidence'), { recursive: true }); writeFileSync(join(OUT, 'evidence', `${s.id}.html`), t.body); }
+    // sha256: the exact archived copy. textSha256: the visible text only, so that ads, nonces and
+    // timestamps on dynamic pages do not look like a change of terms.
+    if (t.status === 200) { out.terms.sha256 = createHash('sha256').update(t.body).digest('hex'); out.terms.textSha256 = createHash('sha256').update(htmlToText(t.body.toString('utf8'))).digest('hex'); mkdirSync(join(OUT, 'evidence'), { recursive: true }); writeFileSync(join(OUT, 'evidence', `${s.id}.html`), t.body); }
   }
   // Feed: registered URL first, otherwise discovery from the homepage.
   let feedUrl = s.feeds.find(f => f.url)?.url || null, discovered = false;
