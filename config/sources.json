@@ -52,7 +52,7 @@
         "headline": {
           "status": "confirmed",
           "basis": "open-licence",
-          "clause": "CC BY 3.0 applies to all Global Voices content unless stated otherwise."
+          "clause": "CC BY 3.0 applies to all Global Voices content; Global Voices also invites sites to embed its live headlines using its RSS feeds."
         },
         "excerpt": {
           "status": "confirmed",
@@ -204,30 +204,29 @@
       ],
       "rights": {
         "fetch": {
-          "status": "confirmed",
-          "basis": "published-guidelines",
-          "clause": "Search-style crawling and public-interest use are welcomed."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Fetch is only useful once headline display is confirmed."
         },
         "analyse": {
           "status": "pending",
           "basis": "none",
-          "clause": "Commercial AI, embeddings and retrieval are reserved; confirm that deterministic non-AI topic tagging is fine."
+          "clause": "Its \"additional requests\" ask users to select individual articles rather than systematically republish all of them, and it publishes a text-and-data-mining reservation; automated headline aggregation and grouping need written confirmation."
         },
         "group": {
           "status": "pending",
           "basis": "none",
-          "clause": "As for analyse."
+          "clause": "Its \"additional requests\" ask users to select individual articles rather than systematically republish all of them, and it publishes a text-and-data-mining reservation; automated headline aggregation and grouping need written confirmation."
         },
         "headline": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "Republishing in whole or in part is allowed; quotes allowed with a link back."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Its \"additional requests\" ask users to select individual articles rather than systematically republish all of them, and it publishes a text-and-data-mining reservation; automated headline aggregation and grouping need written confirmation."
         },
         "excerpt": {
-          "status": "confirmed",
-          "basis": "published-guidelines",
-          "clause": "The first few lines may be shown with a link to the full article.",
-          "maxChars": 280
+          "status": "pending",
+          "basis": "none",
+          "clause": "Its \"additional requests\" ask users to select individual articles rather than systematically republish all of them, and it publishes a text-and-data-mining reservation; automated headline aggregation and grouping need written confirmation."
         },
         "images": {
           "status": "not-permitted",
@@ -254,10 +253,10 @@
           "textSha256": "261b7accfb6cade444b73e4a648712142864a57252af0f610442eb81ff2a623f"
         },
         "writtenPermission": {
-          "status": "not-requested"
+          "status": "to-send"
         }
       },
-      "summary": "Non-profit tech-policy publication.",
+      "summary": "Licence (CC BY-ND 4.0) permits headlines, but its requests against systematic republication make automated aggregation unclear; pending a written answer.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
       "nextReviewAt": "2027-05-28",

@@ -21,6 +21,7 @@ const SOURCE = T.object({
   homepage: T.https(),
   termsUrl: NULLABLE_URL,
   licence: { t: 'nullable-object', schema: T.object({ id: T.text(60), url: T.https() }) },
+  linkHosts: T.array(T.pattern(/^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/, 253), { max: 10 }),
   feeds: T.array(T.object({ url: T.https(), discoverFrom: T.https(), verified: T.bool() }, ['url', 'discoverFrom']), { max: 10 }),
   rights: T.object(Object.fromEntries(RIGHTS.map(r => [r, RIGHT]))),
   conditions: T.array(T.text(300), { max: 20 }),
@@ -34,7 +35,7 @@ const SOURCE = T.object({
   reviewedBy: ID,
   reviewedAt: T.date(),
   nextReviewAt: T.date(),
-}, ['contact', 'operational']);
+}, ['contact', 'operational', 'linkHosts']);
 
 const REGISTER = T.object({
   _comment: T.text(600),
