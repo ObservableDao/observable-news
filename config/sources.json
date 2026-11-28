@@ -80,7 +80,8 @@
           "status": "archived",
           "sha256": "01d2e234608aee049a67ca4ae707ab490847e2b9a0c1cc3d17de01a831c882d9",
           "retrievedAt": "2026-11-28T00:55:55Z",
-          "url": "https://globalvoices.org/about/global-voices-attribution-policy/"
+          "url": "https://globalvoices.org/about/global-voices-attribution-policy/",
+          "textSha256": "b19a30f2f9052b128eda8a95ea6235d505fd60be9d610f3f34761124266ea8a3"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -164,7 +165,8 @@
           "status": "archived",
           "sha256": "1bfd5472ae10c4857cb2e5586dd3874734374fec0726c5fad283a68f81262310",
           "retrievedAt": "2026-11-28T00:56:06Z",
-          "url": "https://news.mongabay.com/copyright/creative-commons/"
+          "url": "https://news.mongabay.com/copyright/creative-commons/",
+          "textSha256": "de0f5caabf0b8cf209b3d205d38c5f1ad6ca778242444a35fa0761a75faf8185"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -248,7 +250,8 @@
           "status": "archived",
           "sha256": "9d72d977e7c74acc1b39e8fc1f631abb1c7ff6a5131bd1be83b89a57ea23f5ff",
           "retrievedAt": "2026-11-28T00:56:06Z",
-          "url": "https://techpolicy.press/republish"
+          "url": "https://techpolicy.press/republish",
+          "textSha256": "261b7accfb6cade444b73e4a648712142864a57252af0f610442eb81ff2a623f"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -489,7 +492,8 @@
           "status": "archived",
           "sha256": "06e8fd18d713628570475e9899b80b05d3383999fabc4105dfd8ddbf7c681e6d",
           "retrievedAt": "2026-11-28T00:56:14Z",
-          "url": "https://libertyinvestigates.org.uk/about-us/use-our-work/"
+          "url": "https://libertyinvestigates.org.uk/about-us/use-our-work/",
+          "textSha256": "585d06b35570ca7d5e1bff8cb8b39d93be2c45d55553d4fdead793be16f1545c"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -1362,7 +1366,8 @@
           "status": "archived",
           "sha256": "2ba619d6b6fce0586adad923cc18092ac9f5ea5ffdc57fc1e56fce7148f248f6",
           "retrievedAt": "2026-11-28T00:56:14Z",
-          "url": "https://www.gov.uk/help/reuse-govuk-content"
+          "url": "https://www.gov.uk/help/reuse-govuk-content",
+          "textSha256": "478182c9d7cf27cc02c3331b7098f57d14f18bfcfd3c2c0e8b00e4cbd416c123"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -1525,7 +1530,8 @@
           "status": "archived",
           "sha256": "0e0c82dba5b036e9dab710434adfe305378067fe0821954758c5061b3fe506ba",
           "retrievedAt": "2026-11-28T00:56:15Z",
-          "url": "https://www.ons.gov.uk/news/statementsandletters"
+          "url": "https://www.ons.gov.uk/news/statementsandletters",
+          "textSha256": "6b75932fe29e7e7c1228a091c30a27ae4b3b289b2ee095ba59f89d5947f70971"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -1608,7 +1614,8 @@
           "status": "archived",
           "sha256": "b2e4c55aa1bd6e5ffd7c07104a06f2d84606b616489244295f5aa89931c7133f",
           "retrievedAt": "2026-11-28T00:56:15Z",
-          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "textSha256": "ef88aaa6a0db33cefdf6f81cf34beef5cfa40723b8c3d6d4db011839288b3b9c"
         },
         "writtenPermission": {
           "status": "not-requested"

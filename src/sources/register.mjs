@@ -25,7 +25,7 @@ const SOURCE = T.object({
   rights: T.object(Object.fromEntries(RIGHTS.map(r => [r, RIGHT]))),
   conditions: T.array(T.text(300), { max: 20 }),
   evidence: T.object({
-    termsArchive: T.object({ status: T.oneOf('pending', 'archived'), sha256: T.pattern(/^[0-9a-f]{64}$/, 64), retrievedAt: T.datetime(), url: T.https() }, ['sha256', 'retrievedAt', 'url']),
+    termsArchive: T.object({ status: T.oneOf('pending', 'archived'), sha256: T.pattern(/^[0-9a-f]{64}$/, 64), textSha256: T.pattern(/^[0-9a-f]{64}$/, 64), retrievedAt: T.datetime(), url: T.https() }, ['sha256', 'textSha256', 'retrievedAt', 'url']),
     writtenPermission: T.object({ status: T.oneOf('not-requested', 'to-send', 'requested', 'granted', 'refused'), ref: T.pattern(/^wp-[a-z0-9-]{3,60}$/, 63) }, ['ref']),
   }),
   contact: T.pattern(/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i, 120),

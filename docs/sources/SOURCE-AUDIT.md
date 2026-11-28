@@ -20,7 +20,10 @@ and pending counts as "no".
 ## Result (after the first live check, 28 November 2026)
 
 The benchmark workflow fetched every source whose Fetch right was confirmed, honouring robots.txt with an
-identified user agent. It archived 7 terms pages with their SHA-256 (recorded in the register). It also
+identified user agent. It archived 7 terms pages with their SHA-256 (recorded in the register). Most terms pages are
+dynamic, so the raw-page hash differs on every fetch. The register therefore also records `textSha256`, a hash of
+the visible text, which stayed identical across runs and is what change monitoring should compare.
+Archived copies are kept as workflow artifacts for 90 days; durable storage in the private repository is still to decide. It also
 changed four entries:
 
 * **Knowable Magazine** and **UK Parliament** refuse requests from an identified user agent (403). Both are now
