@@ -29,11 +29,12 @@ const SOURCE = T.object({
     writtenPermission: T.object({ status: T.oneOf('not-requested', 'to-send', 'requested', 'granted', 'refused'), ref: T.pattern(/^wp-[a-z0-9-]{3,60}$/, 63) }, ['ref']),
   }),
   contact: T.pattern(/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i, 120),
+  operational: T.object({ status: T.oneOf('active', 'stale', 'blocked', 'moved', 'not-found'), checkedAt: T.date(), note: T.text(300) }),
   summary: T.text(400),
   reviewedBy: ID,
   reviewedAt: T.date(),
   nextReviewAt: T.date(),
-}, ['contact']);
+}, ['contact', 'operational']);
 
 const REGISTER = T.object({
   _comment: T.text(600),
@@ -99,8 +100,9 @@ export function validateRegister(reg) {
 //  * at least 5 independent news organisations (by ownership group) with
 //    confirmed headline rights, across at least 3 sections.
 // "strict" counts only sources whose terms are archived with a SHA-256.
-export function coverage(reg, { strict = false } = {}) {
-  const ok = s => s.rights.headline.status === 'confirmed' && (!strict || s.evidence.termsArchive.status === 'archived');
+// "operational" additionally requires that the last live check found an active feed.
+export function coverage(reg, { strict = false, operational = false } = {}) {
+  const ok = s => s.rights.headline.status === 'confirmed' && (!strict || s.evidence.termsArchive.status === 'archived') && (!operational || s.operational?.status === 'active');
   const usable = reg.sources.filter(ok);
   const perSection = Object.fromEntries(reg.sections.map(sec => {
     const list = usable.filter(s => s.sections.includes(sec));
@@ -117,6 +119,6 @@ export function coverage(reg, { strict = false } = {}) {
   const pending = reg.sources.filter(s => s.rights.headline.status === 'pending').map(s => s.id);
   const archived = reg.sources.filter(s => s.evidence.termsArchive.status === 'archived').length;
   const sectionsMeeting = reg.sections.filter(sec => perSection[sec].meets);
-  return { strict, audited: reg.sources.length, archived, perSection, independent, pending, sectionsMeeting,
+  return { strict, operational, audited: reg.sources.length, archived, perSection, independent, pending, sectionsMeeting,
     gate: independent.meets && sectionsMeeting.length >= 3 ? (sectionsMeeting.length === reg.sections.length ? 'met' : 'met-with-fewer-sections') : 'not-met' };
 }
