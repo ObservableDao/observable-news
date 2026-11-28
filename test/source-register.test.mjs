@@ -40,15 +40,24 @@ test('S12 government sources never count as independent news', () => {
 });
 
 test('S13 the strict gate counts only sources with archived terms', () => {
-  assert.equal(coverage(REAL, { strict: true }).gate, 'not-met');
   const r = clone();
   for (const s of r.sources) if (s.rights.headline.status === 'confirmed') s.evidence.termsArchive = { status: 'archived', sha256: 'a'.repeat(64), retrievedAt: '2026-11-28T12:00:00Z', url: s.termsUrl };
-  assert.equal(coverage(r, { strict: true }).gate, coverage(REAL).gate);
+  assert.equal(coverage(r, { strict: true }).gate, coverage(r).gate);
+  r.sources.find(s => s.id === 'global-voices').evidence.termsArchive = { status: 'pending' };
+  assert.ok(coverage(r, { strict: true }).independent.organisations < coverage(r).independent.organisations);
 });
 
-test('S14 the M0 verdict from the committed register (by published licence)', () => {
-  const c = coverage(REAL);
-  assert.equal(c.independent.organisations, 6);
-  assert.deepEqual(c.sectionsMeeting, ['uk', 'world', 'science-space']);
-  assert.equal(c.gate, 'met-with-fewer-sections');
+test('S14 the M0 verdict from the committed register, after the first live check', () => {
+  const legal = coverage(REAL), strict = coverage(REAL, { strict: true }), active = coverage(REAL, { strict: true, operational: true });
+  assert.equal(legal.independent.organisations, 4, 'Global Voices, Mongabay, Tech Policy Press, Liberty Investigates');
+  assert.equal(legal.independent.meets, false, 'one short of the 5 required');
+  assert.deepEqual(legal.sectionsMeeting, ['uk', 'world', 'science-space']);
+  assert.equal(strict.independent.organisations, 4);
+  assert.equal(active.independent.organisations, 3, 'Liberty Investigates has not published to its feed since 2020');
+  for (const c of [legal, strict, active]) assert.equal(c.gate, 'not-met');
+});
+
+test('S15 operational status must be a known value', () => {
+  const r = clone(); r.sources[0].operational = { status: 'fine', checkedAt: '2026-11-28', note: 'x' };
+  assert.equal(validateRegister(r).ok, false);
 });

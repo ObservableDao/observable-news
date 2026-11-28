@@ -8,8 +8,8 @@ const path = args.find(a => !a.startsWith('--')) || 'config/sources.json';
 const reg = JSON.parse(readFileSync(path, 'utf8'));
 const v = validateRegister(reg);
 if (!v.ok) { console.error('register invalid:\n  ' + v.errors.join('\n  ')); process.exit(1); }
-const byLicence = coverage(reg), withEvidence = coverage(reg, { strict: true });
-if (args.includes('--json')) { console.log(JSON.stringify({ byLicence, withEvidence }, null, 2)); process.exit(0); }
+const byLicence = coverage(reg), withEvidence = coverage(reg, { strict: true }), active = coverage(reg, { strict: true, operational: true });
+if (args.includes('--json')) { console.log(JSON.stringify({ byLicence, withEvidence, active }, null, 2)); process.exit(0); }
 
 const line = (c) => {
   console.log(`  Audited sources: ${c.audited} (target 40); terms archived: ${c.archived}`);
@@ -19,4 +19,5 @@ const line = (c) => {
 };
 console.log('By published licence or terms:'); line(byLicence);
 console.log('\nWith archived evidence (strict M0 gate):'); line(withEvidence);
+console.log('\nWith archived evidence and an active feed (usefulness check):'); line(active);
 console.log(`\nPending headline rights (outreach): ${byLicence.pending.join(', ')}`);

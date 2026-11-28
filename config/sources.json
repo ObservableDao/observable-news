@@ -28,7 +28,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "url": "https://globalvoices.org/feed/",
           "discoverFrom": "https://globalvoices.org/"
         }
@@ -77,7 +77,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "01d2e234608aee049a67ca4ae707ab490847e2b9a0c1cc3d17de01a831c882d9",
+          "retrievedAt": "2026-11-28T00:55:55Z",
+          "url": "https://globalvoices.org/about/global-voices-attribution-policy/"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -86,7 +89,12 @@
       "summary": "Citizen-media newsroom; no restriction on automated use found in its republishing guidelines.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "active",
+        "checkedAt": "2026-11-28",
+        "note": "registered feed; newest item 2026-11-27"
+      }
     },
     {
       "id": "mongabay",
@@ -105,7 +113,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "url": "https://news.mongabay.com/feed/",
           "discoverFrom": "https://news.mongabay.com/"
         }
@@ -153,7 +161,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "1bfd5472ae10c4857cb2e5586dd3874734374fec0726c5fad283a68f81262310",
+          "retrievedAt": "2026-11-28T00:56:06Z",
+          "url": "https://news.mongabay.com/copyright/creative-commons/"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -162,7 +173,12 @@
       "summary": "Non-profit environmental newsroom.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "active",
+        "checkedAt": "2026-11-28",
+        "note": "registered feed; newest item 2026-11-27"
+      }
     },
     {
       "id": "tech-policy-press",
@@ -180,7 +196,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "discoverFrom": "https://www.techpolicy.press/"
         }
       ],
@@ -229,7 +245,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "9d72d977e7c74acc1b39e8fc1f631abb1c7ff6a5131bd1be83b89a57ea23f5ff",
+          "retrievedAt": "2026-11-28T00:56:06Z",
+          "url": "https://techpolicy.press/republish"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -238,7 +257,12 @@
       "summary": "Non-profit tech-policy publication.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "active",
+        "checkedAt": "2026-11-28",
+        "note": "discovered feed; only 2 items in the last week; newest 2026-11-22; no 304 support"
+      }
     },
     {
       "id": "climate-feedback",
@@ -262,30 +286,29 @@
       ],
       "rights": {
         "fetch": {
-          "status": "confirmed",
-          "basis": "published-guidelines",
-          "clause": "Republishing encouraged under CC BY 4.0."
+          "status": "pending",
+          "basis": "none",
+          "clause": "The site has moved to science.feedback.org and the licence page cited in the audit now returns 404; re-audit the current licence."
         },
         "analyse": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "CC BY 4.0 permits adaptation."
+          "status": "pending",
+          "basis": "none",
+          "clause": "The site has moved to science.feedback.org and the licence page cited in the audit now returns 404; re-audit the current licence."
         },
         "group": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "CC BY 4.0 permits adaptation."
+          "status": "pending",
+          "basis": "none",
+          "clause": "The site has moved to science.feedback.org and the licence page cited in the audit now returns 404; re-audit the current licence."
         },
         "headline": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "Content is published under CC BY 4.0."
+          "status": "pending",
+          "basis": "none",
+          "clause": "The site has moved to science.feedback.org and the licence page cited in the audit now returns 404; re-audit the current licence."
         },
         "excerpt": {
-          "status": "confirmed",
-          "basis": "published-guidelines",
-          "clause": "The first few lines may be run with a link to the full article.",
-          "maxChars": 280
+          "status": "pending",
+          "basis": "none",
+          "clause": "The site has moved to science.feedback.org and the licence page cited in the audit now returns 404; re-audit the current licence."
         },
         "images": {
           "status": "not-permitted",
@@ -309,10 +332,15 @@
           "status": "not-requested"
         }
       },
-      "summary": "Fact-checking organisation (scientists review media coverage); counts as independent but you may reclassify it.",
+      "summary": "Fact-checking organisation; re-audit after its move to science.feedback.org.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "moved",
+        "checkedAt": "2026-11-28",
+        "note": "items link to science.feedback.org (quarantined as off-domain); licence page returns 404"
+      }
     },
     {
       "id": "knowable-magazine",
@@ -336,29 +364,29 @@
       ],
       "rights": {
         "fetch": {
-          "status": "confirmed",
-          "basis": "published-guidelines",
-          "clause": "Republishing by other outlets is encouraged."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Licence (CC BY-ND) permits headlines, but the site refuses requests from an identified user agent (403); ask before collecting."
         },
         "analyse": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "CC BY-ND permits unaltered reproduction."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Licence (CC BY-ND) permits headlines, but the site refuses requests from an identified user agent (403); ask before collecting."
         },
         "group": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "Grouping links items without altering them."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Licence (CC BY-ND) permits headlines, but the site refuses requests from an identified user agent (403); ask before collecting."
         },
         "headline": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "Published under CC BY-ND; headlines may not be edited, and Observable never edits them."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Licence (CC BY-ND) permits headlines, but the site refuses requests from an identified user agent (403); ask before collecting."
         },
         "excerpt": {
           "status": "pending",
           "basis": "none",
-          "clause": "No-derivatives licence: confirm shortened excerpts."
+          "clause": "Licence (CC BY-ND) permits headlines, but the site refuses requests from an identified user agent (403); ask before collecting."
         },
         "images": {
           "status": "not-permitted",
@@ -381,13 +409,18 @@
           "status": "pending"
         },
         "writtenPermission": {
-          "status": "not-requested"
+          "status": "to-send"
         }
       },
       "summary": "Editorially independent non-profit magazine published by Annual Reviews.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "blocked",
+        "checkedAt": "2026-11-28",
+        "note": "homepage and terms return 403 to the identified user agent; no feed found"
+      }
     },
     {
       "id": "liberty-investigates",
@@ -405,7 +438,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "url": "https://libertyinvestigates.org.uk/feed/",
           "discoverFrom": "https://libertyinvestigates.org.uk/"
         }
@@ -453,7 +486,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "06e8fd18d713628570475e9899b80b05d3383999fabc4105dfd8ddbf7c681e6d",
+          "retrievedAt": "2026-11-28T00:56:14Z",
+          "url": "https://libertyinvestigates.org.uk/about-us/use-our-work/"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -462,7 +498,12 @@
       "summary": "UK investigative unit; publishes infrequently, so it adds little daily volume.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "stale",
+        "checkedAt": "2026-11-28",
+        "note": "registered feed newest item 2020-01-21"
+      }
     },
     {
       "id": "the-conversation-uk",
@@ -539,7 +580,8 @@
       "summary": "Highest-value pending source: covers all five sections.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "contact": "uk-republish@theconversation.com"
     },
     {
       "id": "the-guardian",
@@ -1270,7 +1312,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "url": "https://www.gov.uk/search/news-and-communications.atom"
         }
       ],
@@ -1317,7 +1359,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "2ba619d6b6fce0586adad923cc18092ac9f5ea5ffdc57fc1e56fce7148f248f6",
+          "retrievedAt": "2026-11-28T00:56:14Z",
+          "url": "https://www.gov.uk/help/reuse-govuk-content"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -1326,7 +1371,12 @@
       "summary": "Licence confirmed in the architecture review.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "active",
+        "checkedAt": "2026-11-28",
+        "note": "registered Atom feed; 20 newest items, about one day"
+      }
     },
     {
       "id": "uk-parliament",
@@ -1350,30 +1400,29 @@
       ],
       "rights": {
         "fetch": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "Open Parliament Licence."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Open Parliament Licence permits reuse, but parliament.uk refuses requests from an identified user agent (403); find an official feed or data API."
         },
         "analyse": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "OPL permits adaptation."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Open Parliament Licence permits reuse, but parliament.uk refuses requests from an identified user agent (403); find an official feed or data API."
         },
         "group": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "OPL permits adaptation."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Open Parliament Licence permits reuse, but parliament.uk refuses requests from an identified user agent (403); find an official feed or data API."
         },
         "headline": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "OPL v3.0 allows copying and publication with attribution."
+          "status": "pending",
+          "basis": "none",
+          "clause": "Open Parliament Licence permits reuse, but parliament.uk refuses requests from an identified user agent (403); find an official feed or data API."
         },
         "excerpt": {
-          "status": "confirmed",
-          "basis": "open-licence",
-          "clause": "OPL v3.0.",
-          "maxChars": 400
+          "status": "pending",
+          "basis": "none",
+          "clause": "Open Parliament Licence permits reuse, but parliament.uk refuses requests from an identified user agent (403); find an official feed or data API."
         },
         "images": {
           "status": "pending",
@@ -1401,7 +1450,12 @@
       "summary": "Committee and chamber news.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "blocked",
+        "checkedAt": "2026-11-28",
+        "note": "returns 403 to the identified user agent; no feed found"
+      }
     },
     {
       "id": "ons",
@@ -1420,7 +1474,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "url": "https://www.ons.gov.uk/releasecalendar?rss",
           "discoverFrom": "https://www.ons.gov.uk/releasecalendar"
         }
@@ -1468,7 +1522,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "0e0c82dba5b036e9dab710434adfe305378067fe0821954758c5061b3fe506ba",
+          "retrievedAt": "2026-11-28T00:56:15Z",
+          "url": "https://www.ons.gov.uk/news/statementsandletters"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -1477,7 +1534,12 @@
       "summary": "Release calendar; market-sensitive releases at 07:00, others at 09:30.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "active",
+        "checkedAt": "2026-11-28",
+        "note": "registered feed; newest item 2026-11-27"
+      }
     },
     {
       "id": "nasa",
@@ -1495,7 +1557,7 @@
       },
       "feeds": [
         {
-          "verified": false,
+          "verified": true,
           "url": "https://www.nasa.gov/news-release/feed/",
           "discoverFrom": "https://www.nasa.gov/"
         }
@@ -1543,7 +1605,10 @@
       ],
       "evidence": {
         "termsArchive": {
-          "status": "pending"
+          "status": "archived",
+          "sha256": "b2e4c55aa1bd6e5ffd7c07104a06f2d84606b616489244295f5aa89931c7133f",
+          "retrievedAt": "2026-11-28T00:56:15Z",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
         },
         "writtenPermission": {
           "status": "not-requested"
@@ -1552,7 +1617,12 @@
       "summary": "Guidelines confirmed in the architecture review.",
       "reviewedBy": "claude-m0-audit",
       "reviewedAt": "2026-11-28",
-      "nextReviewAt": "2027-05-28"
+      "nextReviewAt": "2027-05-28",
+      "operational": {
+        "status": "active",
+        "checkedAt": "2026-11-28",
+        "note": "registered feed; newest item 2026-11-27"
+      }
     },
     {
       "id": "bank-of-england",
