@@ -29,6 +29,7 @@ Observable Dao are involved.
 | Settings → Actions → General → Workflow permissions | Read repository contents; PR creation/approval **off** |
 | Fork pull request workflows (private) | **Off** (default) |
 | Rulesets / branch protection / environments | **Not available on GitHub Free for private repositories — not relied on** |
+| Settings → General → Releases | **Enable release immutability** before the mirror workflow is ever enabled. The mirror refuses to copy into mutable releases; if this setting is not offered for a private repository on GitHub Free, `mirror-history.yml` stays disabled and the mirror needs another design |
 | Repository secrets | None yet |
 
 ### Your account (both repositories depend on it)

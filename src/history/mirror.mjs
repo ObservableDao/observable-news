@@ -35,6 +35,8 @@ export async function publishBatch(store, prefix, batch) {
   await store.upload(id, 'records.jsonl', batch.recordsBytes);
   await store.upload(id, 'manifest.json', Buffer.from(canonicalJSON(batch.manifest)));
   await store.publish(id);
+  const rel = (await store.list()).find(r => r.id === id);
+  return { id, immutable: rel?.immutable === true };
 }
 
 export async function mirrorHistory({ source, mirror }) {
@@ -42,8 +44,11 @@ export async function mirrorHistory({ source, mirror }) {
   const mir = await loadBatches(mirror, MIRROR_PREFIX);
   const report = { copied: [], alreadyMirrored: [], refused: [], divergent: [], publicMissing: [], unrecoverable: [],
     sourceProblems: pub.problems, mirrorProblems: mir.problems };
+  // The mirror must be as tamper-resistant as the public history: never copy
+  // into a store whose releases are (or come out) mutable.
+  report.mirrorNotImmutable = mir.problems.some(p => p.problem === 'not-immutable');
   const slots = [...new Set([...pub.batches.keys(), ...mir.batches.keys()])].sort();
-  if (slots.length) {
+  if (slots.length && !report.mirrorNotImmutable) {
     const first = slots[0], last = slots[slots.length - 1];
     const { restored, report: rr } = restoreFromMirror(pub.batches, mir.batches, first, last);
     report.unrecoverable = rr.unrecoverable;
@@ -53,13 +58,17 @@ export async function mirrorHistory({ source, mirror }) {
         if (p.manifestSha256 !== m.manifestSha256 || !batchIsIntact(p)) report.divergent.push(slot);
         else report.alreadyMirrored.push(slot);
       } else if (p) {
-        if (good === p) { await publishBatch(mirror, MIRROR_PREFIX, p); report.copied.push(slot); }
+        if (good === p) {
+          const done = await publishBatch(mirror, MIRROR_PREFIX, p);
+          report.copied.push(slot);
+          if (!done.immutable) { report.mirrorNotImmutable = true; break; } // stop at the first mutable copy
+        }
         else report.refused.push({ slot, problem: batchIsIntact(p) ? 'chain-break' : 'tampered' });
       } else if (m && good === m) report.publicMissing.push(slot);
       if (slot === last) break;
     }
   }
-  report.ok = !report.refused.length && !report.divergent.length && !report.publicMissing.length &&
+  report.ok = !report.mirrorNotImmutable && !report.refused.length && !report.divergent.length && !report.publicMissing.length &&
     !report.unrecoverable.length && !report.sourceProblems.length && !report.mirrorProblems.length;
   return report;
 }

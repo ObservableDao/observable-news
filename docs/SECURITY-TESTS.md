@@ -50,6 +50,7 @@ as documented*. The live tests below confirm that GitHub does.
 | S-L1 | Open a fork pull request | CI runs only after approval, with no secrets |
 | S-L2 | Push directly to public main after rulesets are on | Rejected by `protect-main` |
 | S-L3 | Billing: no Actions budget above $0, or a $0 budget with stop-usage | Confirmed by screenshot |
+| M-L1 | Private desk repo: enable release immutability, publish a test release, try to replace an asset | Setting offered and asset change refused; otherwise the mirror stays disabled |
 | P-L1 | `git ls-remote https://github.com/actions/setup-node refs/tags/v6.0.0` | Prints `2028fbc5c25fe9cf00d9f06a71cc4710d4507903` (only one independent source so far) |
 
 ## Still placeholders
