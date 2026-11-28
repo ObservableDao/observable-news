@@ -114,3 +114,12 @@ test('I9 rendering escapes everything taken from feeds', () => {
   assert.equal(esc('<img src=x onerror=alert(1)>"\''), '&lt;img src=x onerror=alert(1)&gt;&quot;&#39;');
   assert.ok(rssFor({ name: 'A&B', homepage: 'https://e.org/' }, []).includes('A&amp;B'));
 });
+
+test('I10 items older than retention are skipped, so they cannot re-enter on every run', async () => {
+  const old = RSS.replace('Fri, 27 Nov 2026 09:00:00 GMT', 'Mon, 01 Jan 2024 09:00:00 GMT');
+  const reg = { sources: [SRC] };
+  const fetchSource = async () => ({ status: 200, body: Buffer.from(old) });
+  const a = await collect({ register: reg, state: emptyState(), fetchSource, now: NOW });
+  const b = await collect({ register: reg, state: a.state, fetchSource, now: NOW });
+  assert.deepEqual([a.stats.stale, a.stats.newItems, b.stats.stale, b.stats.newItems], [1, 0, 1, 0]);
+});

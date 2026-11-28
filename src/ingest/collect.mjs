@@ -27,7 +27,8 @@ async function pool(list, n, fn) {
 
 // fetchSource(source, { etag, lastModified }) → { status: 200|304|error code, body?, etag?, lastModified? }
 export async function collect({ register, state, fetchSource, now = Date.now(), concurrency = 8, retentionDays = RETENTION_DAYS }) {
-  const stats = { feeds: 0, ok: 0, notModified: 0, failed: 0, parsed: 0, newItems: 0, duplicates: 0, quarantined: 0, groupsCreated: 0, joinedExisting: 0, comparisons: 0 };
+  const stats = { feeds: 0, ok: 0, notModified: 0, failed: 0, parsed: 0, newItems: 0, duplicates: 0, stale: 0, quarantined: 0, groupsCreated: 0, joinedExisting: 0, comparisons: 0 };
+  const oldest = now - retentionDays * 86400_000;
   const sources = register.sources.filter(s => s.rights.fetch.status === 'confirmed');
 
   // Rebuild the grouping index from items still inside the window.
@@ -54,6 +55,8 @@ export async function collect({ register, state, fetchSource, now = Date.now(), 
       stats.parsed++;
       const n = normaliseItem(raw, s, now);
       if (n.quarantine) { stats.quarantined++; state.quarantine[n.quarantine] = (state.quarantine[n.quarantine] || 0) + 1; continue; }
+      // Items older than retention are skipped, or they would be pruned and re-added on every run.
+      if (Date.parse(n.item.publishedAt) < oldest) { stats.stale++; continue; }
       if (state.items[n.item.id]) { stats.duplicates++; continue; }
       const item = applyRights(n.item, s);
       const existingGroups = grouper.groups.size;

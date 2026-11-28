@@ -82,7 +82,8 @@ async function probeSource(s) {
     const spanDays = dated.length > 1 ? (dated.at(-1) - dated[0]) / 86400e3 : null;
     const q = {}; let valid = 0;
     for (const it of items) { const n = normaliseItem(it, s, now); if (n.quarantine) q[n.quarantine] = (q[n.quarantine] || 0) + 1; else valid++; }
-    Object.assign(out.feed, { items: items.length, valid, quarantine: q, newest: dated.length ? new Date(dated.at(-1)).toISOString() : null,
+    const stale = dated.filter(t => now - t > 14 * 86400e3).length;
+    Object.assign(out.feed, { items: items.length, valid, quarantine: q, dated: dated.length, undated: items.length - dated.length, lastWeek: week, olderThan14Days: stale, oldest: dated.length ? new Date(dated[0]).toISOString() : null, newest: dated.length ? new Date(dated.at(-1)).toISOString() : null,
       itemsPerDay: +(week >= 3 || !spanDays ? week / 7 : Math.min(items.length / Math.max(spanDays, 1 / 24), 999)).toFixed(1) });
   } catch (e) { out.feed.parseError = e.code || e.message; }
   // Conditional request: does the server answer 304?
@@ -105,10 +106,13 @@ for (let i = 0; i < 2; i++) { const t0 = performance.now(); const r = await coll
 const results = { generatedAt: new Date().toISOString(), userAgent: UA, runner: process.env.RUNNER_NAME || null, probes, collectionRuns: runs };
 mkdirSync(OUT, { recursive: true });
 writeFileSync(join(OUT, 'live.json'), JSON.stringify(results, null, 2));
+// Evidence lines in the log as well, because artifacts expire: one JSON line per archived terms page.
+for (const p of probes) if (p.terms) console.log('EVIDENCE ' + JSON.stringify({ id: p.id, ...p.terms }));
+for (const p of probes) console.log('FEED ' + JSON.stringify({ id: p.id, ...p.feed }));
 const md = ['### M0 live run (registered sources with a confirmed Fetch right)', '',
   '| Source | Feed | HTTP | ms | KB | Items | Items/day | 304 | robots | Terms archived |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   ...probes.map(p => `| ${p.name} | ${p.feed?.url ? (p.feed.discovered ? 'discovered' : 'registered') : (p.feed?.status || 'none')} | ${p.feed?.status ?? ''} | ${p.feed?.ms ?? ''} | ${p.feed?.bytes ? (p.feed.bytes / 1024).toFixed(0) : ''} | ${p.feed?.items ?? ''} | ${p.feed?.itemsPerDay ?? ''} | ${p.feed?.conditional ?? ''} | ${p.feed?.robots ?? ''} | ${p.terms?.sha256 ? `yes (${p.terms.sha256.slice(0, 12)}…)` : `no (${p.terms?.status ?? 'no URL'})`} |`),
-  '', `Collection over the network: run 1 ${runs[0].ms} ms (${runs[0].ok} feeds, ${runs[0].newItems} items), run 2 ${runs[1].ms} ms (${runs[1].notModified} unchanged, ${runs[1].newItems} new).`,
+  '', `Collection over the network: run 1 ${runs[0].ms} ms (${runs[0].ok} feeds, ${runs[0].newItems} new, ${runs[0].stale} older than retention), run 2 ${runs[1].ms} ms (${runs[1].notModified} unchanged, ${runs[1].newItems} new, ${runs[1].duplicates} duplicates).`,
   `Estimated independent-news volume: ${probes.filter(p => sources.find(s => s.id === p.id).sourceType === 'independent-news').reduce((a, p) => a + (p.feed?.itemsPerDay || 0), 0).toFixed(1)} items/day.`].join('\n');
 writeFileSync(join(OUT, 'live.md'), md + '\n');
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
