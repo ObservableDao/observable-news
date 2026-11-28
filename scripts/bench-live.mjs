@@ -1,0 +1,89 @@
+// M0 live benchmark and terms archive (runs on GitHub-hosted runners).
+// Usage: node scripts/bench-live.mjs [--out live-out] [--register config/sources.json]
+// Only sources whose Fetch right is confirmed are contacted. Polite: one
+// identified user agent, robots.txt honoured, conditional requests, a few
+// requests per source, sequential per host.
+import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
+import { parseFeed, discoverFeeds, htmlToText } from '../src/ingest/feed.mjs';
+import { normaliseItem } from '../src/ingest/normalise.mjs';
+import { collect, emptyState } from '../src/ingest/collect.mjs';
+import { createFetcher, fetchSourceWith, USER_AGENT } from '../src/ingest/fetcher.mjs';
+
+const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : process.argv[i + 1]; };
+const OUT = arg('out', 'live-out');
+const register = JSON.parse(readFileSync(arg('register', 'config/sources.json'), 'utf8'));
+const fetcher = createFetcher();
+const get = (url, headers) => fetcher.get(url, headers);
+
+async function probeSource(s) {
+  const out = { id: s.id, name: s.name };
+  // Terms archive (evidence for the strict gate).
+  if (s.termsUrl) {
+    const t = await get(s.termsUrl);
+    out.terms = { url: s.termsUrl, status: t.status, bytes: t.body?.length || 0, retrievedAt: new Date().toISOString() };
+    // sha256: the exact archived copy. textSha256: the visible text only, so that ads, nonces and
+    // timestamps on dynamic pages do not look like a change of terms.
+    if (t.status === 200) { out.terms.sha256 = createHash('sha256').update(t.body).digest('hex'); out.terms.textSha256 = createHash('sha256').update(htmlToText(t.body.toString('utf8'))).digest('hex'); mkdirSync(join(OUT, 'evidence'), { recursive: true }); writeFileSync(join(OUT, 'evidence', `${s.id}.html`), t.body); }
+  }
+  // Feed: registered URL first, otherwise discovery from the homepage.
+  let feedUrl = s.feeds.find(f => f.url)?.url || null, discovered = false;
+  let first = feedUrl ? await get(feedUrl) : null;
+  if (!first || first.status !== 200) {
+    const from = s.feeds.find(f => f.discoverFrom)?.discoverFrom || s.homepage;
+    const page = await get(from, { Accept: 'text/html' });
+    const cands = page.status === 200 ? discoverFeeds(page.body.toString('utf8'), page.finalUrl || from) : [];
+    if (cands.length) { feedUrl = cands[0]; discovered = true; first = await get(feedUrl); }
+  }
+  if (!feedUrl || !first) return { ...out, feed: { status: 'no-feed-found' } };
+  out.feed = { url: feedUrl, discovered, status: first.status, ms: first.ms, bytes: first.body?.length || 0, etag: !!first.etag, lastModified: !!first.lastModified, redirects: first.redirects || 0,
+    robots: first.status === 'blocked' ? first.code : (first.robots || '') };
+  if (first.status === 'blocked') { out.feed.note = 'robots.txt does not allow this feed: it was not fetched'; return out; }
+  if (first.status !== 200) return out;
+  try {
+    const items = parseFeed(first.body).items;
+    const now = Date.now();
+    const dated = items.filter(i => i.published).map(i => Date.parse(i.published)).sort((a, b) => a - b);
+    const week = dated.filter(t => now - t <= 7 * 86400e3).length;
+    const spanDays = dated.length > 1 ? (dated.at(-1) - dated[0]) / 86400e3 : null;
+    const q = {}; let valid = 0;
+    for (const it of items) { const n = normaliseItem(it, s, now); if (n.quarantine) q[n.quarantine] = (q[n.quarantine] || 0) + 1; else valid++; }
+    const stale = dated.filter(t => now - t > 14 * 86400e3).length;
+    Object.assign(out.feed, { items: items.length, valid, quarantine: q, dated: dated.length, undated: items.length - dated.length, lastWeek: week, olderThan14Days: stale, oldest: dated.length ? new Date(dated[0]).toISOString() : null, newest: dated.length ? new Date(dated.at(-1)).toISOString() : null,
+      // A feed that holds less than a week (every dated item is from the last 7 days) is window-limited:
+      // estimate from its own span. Otherwise count the last 7 days.
+      windowLimited: dated.length >= 2 && week === dated.length && spanDays > 0,
+      itemsPerDay: +(dated.length >= 2 && week === dated.length && spanDays > 0 ? (dated.length - 1) / Math.max(spanDays, 1 / 24) : week / 7).toFixed(1) });
+  } catch (e) { out.feed.parseError = e.code || e.message; }
+  // Conditional request: does the server answer 304?
+  const cond = await get(feedUrl, { ...(first.etag ? { 'If-None-Match': first.etag } : {}), ...(first.lastModified ? { 'If-Modified-Since': first.lastModified } : {}) });
+  out.feed.conditional = first.etag || first.lastModified ? cond.status : 'no validators';
+  return out;
+}
+
+const sources = register.sources.filter(s => s.rights.fetch.status === 'confirmed');
+const probes = [];
+for (const s of sources) probes.push(await probeSource(s)); // sequential: gentle on publishers
+
+// A real collection run over the network (feeds found above), twice: full, then conditional.
+const reg2 = { ...register, sources: sources.map(s => { const p = probes.find(x => x.id === s.id); return p?.feed?.url && p.feed.status === 200 ? { ...s, feeds: [{ url: p.feed.url, verified: true }] } : { ...s, rights: { ...s.rights, fetch: { ...s.rights.fetch, status: 'pending' } } }; }) };
+const fetchSource = fetchSourceWith(fetcher);
+const runs = [];
+let state = emptyState();
+for (let i = 0; i < 2; i++) { const t0 = performance.now(); const r = await collect({ register: reg2, state, fetchSource, concurrency: 4 }); state = r.state; runs.push({ ms: Math.round(performance.now() - t0), ...r.stats }); }
+
+const results = { generatedAt: new Date().toISOString(), userAgent: USER_AGENT, requests: fetcher.log.length, runner: process.env.RUNNER_NAME || null, probes, collectionRuns: runs };
+mkdirSync(OUT, { recursive: true });
+writeFileSync(join(OUT, 'live.json'), JSON.stringify(results, null, 2));
+// Evidence lines in the log as well, because artifacts expire: one JSON line per archived terms page.
+for (const p of probes) if (p.terms) console.log('EVIDENCE ' + JSON.stringify({ id: p.id, ...p.terms }));
+for (const p of probes) console.log('FEED ' + JSON.stringify({ id: p.id, ...p.feed }));
+const md = ['### M0 live run (registered sources with a confirmed Fetch right)', '',
+  '| Source | Feed | HTTP | ms | KB | Items | Items/day (est.) | 304 | robots | Terms archived |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  ...probes.map(p => `| ${p.name} | ${p.feed?.url ? (p.feed.discovered ? 'discovered' : 'registered') : (p.feed?.status || 'none')} | ${p.feed?.status ?? ''} | ${p.feed?.ms ?? ''} | ${p.feed?.bytes ? (p.feed.bytes / 1024).toFixed(0) : ''} | ${p.feed?.items ?? ''} | ${p.feed?.itemsPerDay ?? ''}${p.feed?.windowLimited ? ' (feed < 7 days)' : ''} | ${p.feed?.conditional ?? ''} | ${p.feed?.robots ?? ''} | ${p.terms?.sha256 ? `yes (${p.terms.sha256.slice(0, 12)}…)` : `no (${p.terms?.status ?? 'no URL'})`} |`),
+  '', `Collection over the network: run 1 ${runs[0].ms} ms (${runs[0].ok} feeds, ${runs[0].newItems} new, ${runs[0].stale} older than retention), run 2 ${runs[1].ms} ms (${runs[1].notModified} unchanged, ${runs[1].newItems} new, ${runs[1].duplicates} duplicates).`,
+  `Estimated independent-news volume: ${probes.filter(p => sources.find(s => s.id === p.id).sourceType === 'independent-news').reduce((a, p) => a + (p.feed?.itemsPerDay || 0), 0).toFixed(1)} items/day.`].join('\n');
+writeFileSync(join(OUT, 'live.md'), md + '\n');
+if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
+console.log(md);
