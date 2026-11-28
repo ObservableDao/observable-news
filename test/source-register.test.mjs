@@ -47,17 +47,24 @@ test('S13 the strict gate counts only sources with archived terms', () => {
   assert.ok(coverage(r, { strict: true }).independent.organisations < coverage(r).independent.organisations);
 });
 
-test('S14 the M0 verdict from the committed register, after the first live check', () => {
+test('S14 the M0 verdict from the committed register (after the live check and the Tech Policy Press review)', () => {
   const legal = coverage(REAL), strict = coverage(REAL, { strict: true }), active = coverage(REAL, { strict: true, operational: true });
-  assert.equal(legal.independent.organisations, 4, 'Global Voices, Mongabay, Tech Policy Press, Liberty Investigates');
-  assert.equal(legal.independent.meets, false, 'one short of the 5 required');
+  assert.equal(legal.independent.organisations, 3, 'Global Voices, Mongabay, Liberty Investigates');
+  assert.equal(legal.independent.meets, false, 'two short of the 5 required');
   assert.deepEqual(legal.sectionsMeeting, ['uk', 'world', 'science-space']);
-  assert.equal(strict.independent.organisations, 4);
-  assert.equal(active.independent.organisations, 3, 'Liberty Investigates has not published to its feed since 2020');
+  assert.equal(strict.independent.organisations, 3);
+  assert.equal(active.independent.organisations, 2, 'Liberty Investigates has not published to its feed since 2020');
   for (const c of [legal, strict, active]) assert.equal(c.gate, 'not-met');
 });
 
 test('S15 operational status must be a known value', () => {
   const r = clone(); r.sources[0].operational = { status: 'fine', checkedAt: '2026-11-28', note: 'x' };
   assert.equal(validateRegister(r).ok, false);
+});
+
+test('S16 linkHosts must be hostnames', () => {
+  const r = clone(); r.sources[0].linkHosts = ['https://evil.example/path'];
+  assert.equal(validateRegister(r).ok, false);
+  r.sources[0].linkHosts = ['science.feedback.org'];
+  assert.equal(validateRegister(r).ok, true);
 });

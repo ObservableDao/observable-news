@@ -31,26 +31,29 @@ changed four entries:
 * **Climate Feedback** has moved to science.feedback.org; the licence page cited in the audit now returns 404,
   and its feed links to the new domain. It is pending until re-audited.
 * **Liberty Investigates** keeps its rights, but its own feed's newest item is from January 2020.
+* **Tech Policy Press** (review, 28 November): its licence permits headlines, but its additional requests ask
+  users to select individual articles rather than systematically republish all of them, and it publishes a
+  text-and-data-mining reservation. Automated headline aggregation is systematic use of every item, so, as with
+  ProPublica and The Conversation, it is pending until Tech Policy Press confirms in writing.
 
 | Section | Headline sources (confirmed, terms archived) | Active feed | Meets 3? |
 | --- | --- | --- | --- |
 | UK | Liberty Investigates, GOV.UK, ONS | GOV.UK, ONS | Yes (legally); 2 active |
 | World | Global Voices, Mongabay, GOV.UK | all three | Yes |
 | Science & Space | Mongabay, GOV.UK, NASA | all three | Yes |
-| Technology & AI | Tech Policy Press, GOV.UK | both | No (2) |
+| Technology & AI | GOV.UK | GOV.UK | No (1) |
 | Business | GOV.UK, ONS | both | No (2) |
 
-**Independent news organisations with confirmed headline rights: 4** (Global Voices, Mongabay,
-Tech Policy Press, Liberty Investigates), **one short of the 5 required. Only 3 publish to an active feed.**
+**Independent news organisations with confirmed headline rights: 3** (Global Voices, Mongabay,
+Liberty Investigates), **two short of the 5 required. Only 2 publish to an active feed.**
 The M0 source gate is **not met**. Audited: 23 of the 40 sources M0 asks for.
 
 ## Viability
 
 * Openly licensed sources alone do not make a credible general briefing. The confirmed independent output is
-  low: Global Voices about 1 item a day, Tech Policy Press 2 in the last week, and Mongabay the most active
-  (32 items in two days, environment only).
+  low: Global Voices about 1 item a day and Mongabay about 13 (environment only).
 * UK independent coverage is effectively nil without written permission.
-* The gate becomes reachable with **any one** of: The Conversation UK (covers all five sections),
+* The gate needs **two more** of: The Conversation UK (covers all five sections), Tech Policy Press,
   openDemocracy, TBIJ, Carbon Brief, Rest of World, or a re-audited Climate Feedback. A credible UK briefing needs
   The Conversation UK and at least one of openDemocracy, TBIJ or the Guardian.
 * Recommendation: send the permission requests now, starting with The Conversation UK
