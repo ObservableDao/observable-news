@@ -1,0 +1,1695 @@
+{
+  "_comment": "Source register v1 (M0 audit). Statuses: confirmed, pending, not-permitted. A missing or unclear right counts as no. Evidence archives (copy + SHA-256) are produced by the benchmark workflow and recorded by pull request.",
+  "version": 1,
+  "assumptions": {
+    "nonCommercial": "Observable carries no advertising or sponsorship and sells nothing; non-commercial licences depend on this."
+  },
+  "sections": [
+    "uk",
+    "world",
+    "science-space",
+    "technology-ai",
+    "business"
+  ],
+  "sources": [
+    {
+      "id": "global-voices",
+      "name": "Global Voices",
+      "ownerGroup": "global-voices",
+      "sourceType": "independent-news",
+      "sections": [
+        "world"
+      ],
+      "homepage": "https://globalvoices.org/",
+      "termsUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
+      "licence": {
+        "id": "CC-BY-3.0",
+        "url": "https://creativecommons.org/licenses/by/3.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://globalvoices.org/feed/",
+          "discoverFrom": "https://globalvoices.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "Public RSS feeds offered; the licence permits reuse."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY permits copying and adaptation."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY permits copying and adaptation."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY 3.0 applies to all Global Voices content unless stated otherwise."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY permits excerpts with attribution.",
+          "maxChars": 280
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Credit Global Voices and the author, link to the original and the licence.",
+        "Do not imply endorsement."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Citizen-media newsroom; no restriction on automated use found in its republishing guidelines.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "mongabay",
+      "name": "Mongabay",
+      "ownerGroup": "mongabay",
+      "sourceType": "independent-news",
+      "sections": [
+        "world",
+        "science-space"
+      ],
+      "homepage": "https://news.mongabay.com/",
+      "termsUrl": "https://news.mongabay.com/copyright/creative-commons/",
+      "licence": {
+        "id": "CC-BY-ND-4.0",
+        "url": "https://creativecommons.org/licenses/by-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://news.mongabay.com/feed/",
+          "discoverFrom": "https://news.mongabay.com/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "Public RSS feed offered; republishing encouraged."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY-ND 4.0 permits reproduction in whole or in part."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Grouping links items without altering them."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY-ND 4.0 permits sharing unaltered parts of the work."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "No-derivatives licence: a shortened excerpt may count as an abridgment; ask before showing."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Credit Mongabay and the author, link to the original.",
+        "Do not sell the material or put it behind a paywall."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Non-profit environmental newsroom.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "tech-policy-press",
+      "name": "Tech Policy Press",
+      "ownerGroup": "tech-policy-press",
+      "sourceType": "independent-news",
+      "sections": [
+        "technology-ai"
+      ],
+      "homepage": "https://www.techpolicy.press/",
+      "termsUrl": "https://techpolicy.press/republish",
+      "licence": {
+        "id": "CC-BY-ND-4.0",
+        "url": "https://creativecommons.org/licenses/by-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.techpolicy.press/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "Search-style crawling and public-interest use are welcomed."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Commercial AI, embeddings and retrieval are reserved; confirm that deterministic non-AI topic tagging is fine."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "As for analyse."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Republishing in whole or in part is allowed; quotes allowed with a link back."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "The first few lines may be shown with a link to the full article.",
+          "maxChars": 280
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Credit Tech Policy Press and the authors, link to the original URL.",
+        "Show excerpts with \"Read the full article on Tech Policy Press\".",
+        "Do not sell, syndicate or sublicense."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Non-profit tech-policy publication.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "climate-feedback",
+      "name": "Climate Feedback (Science Feedback)",
+      "ownerGroup": "science-feedback",
+      "sourceType": "independent-news",
+      "sections": [
+        "science-space"
+      ],
+      "homepage": "https://climatefeedback.org/",
+      "termsUrl": "https://climatefeedback.org/?p=7217",
+      "licence": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://climatefeedback.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "Republishing encouraged under CC BY 4.0."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY 4.0 permits adaptation."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY 4.0 permits adaptation."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Content is published under CC BY 4.0."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "The first few lines may be run with a link to the full article.",
+          "maxChars": 280
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Credit Climate Feedback and link to the original URL."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Fact-checking organisation (scientists review media coverage); counts as independent but you may reclassify it.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "knowable-magazine",
+      "name": "Knowable Magazine",
+      "ownerGroup": "annual-reviews",
+      "sourceType": "independent-news",
+      "sections": [
+        "science-space"
+      ],
+      "homepage": "https://knowablemagazine.org/",
+      "termsUrl": "https://knowablemagazine.org/about",
+      "licence": {
+        "id": "CC-BY-ND",
+        "url": "https://creativecommons.org/licenses/by-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://knowablemagazine.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "Republishing by other outlets is encouraged."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY-ND permits unaltered reproduction."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Grouping links items without altering them."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Published under CC BY-ND; headlines may not be edited, and Observable never edits them."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "No-derivatives licence: confirm shortened excerpts."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Never edit the headline.",
+        "Credit Knowable Magazine and link to the original.",
+        "Record the exact licence version when the terms are archived."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Editorially independent non-profit magazine published by Annual Reviews.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "liberty-investigates",
+      "name": "Liberty Investigates",
+      "ownerGroup": "liberty-investigates",
+      "sourceType": "independent-news",
+      "sections": [
+        "uk"
+      ],
+      "homepage": "https://libertyinvestigates.org.uk/",
+      "termsUrl": "https://libertyinvestigates.org.uk/about-us/use-our-work/",
+      "licence": {
+        "id": "CC-BY-NC-ND-3.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://libertyinvestigates.org.uk/feed/",
+          "discoverFrom": "https://libertyinvestigates.org.uk/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "published-guidelines",
+          "clause": "Media organisations may republish without charge."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Unaltered, non-commercial use."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Grouping links items without altering them."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "CC BY-NC-ND 3.0 allows copying and distribution for non-commercial purposes; headlines are shown unaltered."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "No-derivatives licence: confirm shortened excerpts."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Non-commercial use only.",
+        "Credit the journalist and Liberty Investigates."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "UK investigative unit; publishes infrequently, so it adds little daily volume.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "the-conversation-uk",
+      "name": "The Conversation (UK)",
+      "ownerGroup": "the-conversation",
+      "sourceType": "independent-news",
+      "sections": [
+        "uk",
+        "world",
+        "science-space",
+        "technology-ai",
+        "business"
+      ],
+      "homepage": "https://theconversation.com/uk",
+      "termsUrl": "https://theconversation.com/republishing-guidelines",
+      "licence": {
+        "id": "CC-BY-ND-4.0",
+        "url": "https://creativecommons.org/licenses/by-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://theconversation.com/uk/articles.atom"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-ND, but the guidelines bar systematic republishing; written confirmation for automated headlines and grouping requested in the architecture."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-ND, but the guidelines bar systematic republishing; written confirmation for automated headlines and grouping requested in the architecture."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-ND, but the guidelines bar systematic republishing; written confirmation for automated headlines and grouping requested in the architecture."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-ND, but the guidelines bar systematic republishing; written confirmation for automated headlines and grouping requested in the architecture."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-ND, but the guidelines bar systematic republishing; written confirmation for automated headlines and grouping requested in the architecture."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Use the page-view counter when republishing articles (not applicable to headline links)."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Highest-value pending source: covers all five sections.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "the-guardian",
+      "name": "The Guardian (Open Platform)",
+      "ownerGroup": "guardian-media-group",
+      "sourceType": "independent-news",
+      "sections": [
+        "uk",
+        "world",
+        "science-space",
+        "technology-ai",
+        "business"
+      ],
+      "homepage": "https://www.theguardian.com/",
+      "termsUrl": null,
+      "licence": null,
+      "feeds": [],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "API terms allow headlines as links for non-commercial use, but a clause reportedly restricts text and data mining; needs a developer key (a credential you have not approved) and written confirmation."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "API terms allow headlines as links for non-commercial use, but a clause reportedly restricts text and data mining; needs a developer key (a credential you have not approved) and written confirmation."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "API terms allow headlines as links for non-commercial use, but a clause reportedly restricts text and data mining; needs a developer key (a credential you have not approved) and written confirmation."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "API terms allow headlines as links for non-commercial use, but a clause reportedly restricts text and data mining; needs a developer key (a credential you have not approved) and written confirmation."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "API terms allow headlines as links for non-commercial use, but a clause reportedly restricts text and data mining; needs a developer key (a credential you have not approved) and written confirmation."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Needs an API key: not created."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Would transform UK and Business coverage if confirmed. Terms URL to be recorded from the Open Platform site when the archive runs.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "opendemocracy",
+      "name": "openDemocracy",
+      "ownerGroup": "opendemocracy",
+      "sourceType": "independent-news",
+      "sections": [
+        "uk",
+        "world"
+      ],
+      "homepage": "https://www.opendemocracy.net/",
+      "termsUrl": "https://www.opendemocracy.net/en/syndication/",
+      "licence": {
+        "id": "CC-BY-NC-ND",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.opendemocracy.net/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Non-commercial CC licence on most articles, but regular use of more than two pieces a month should be agreed with them first."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Non-commercial CC licence on most articles, but regular use of more than two pieces a month should be agreed with them first."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Non-commercial CC licence on most articles, but regular use of more than two pieces a month should be agreed with them first."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Non-commercial CC licence on most articles, but regular use of more than two pieces a month should be agreed with them first."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Non-commercial CC licence on most articles, but regular use of more than two pieces a month should be agreed with them first."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Exact copy, credited, with a link; images never included."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "UK-based; strong UK and World candidate.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28",
+      "contact": "syndication@opendemocracy.net"
+    },
+    {
+      "id": "bureau-investigative-journalism",
+      "name": "The Bureau of Investigative Journalism",
+      "ownerGroup": "tbij",
+      "sourceType": "independent-news",
+      "sections": [
+        "uk",
+        "world",
+        "business"
+      ],
+      "homepage": "https://www.thebureauinvestigates.com/",
+      "termsUrl": "https://www.thebureauinvestigates.com/about-us/our-funding",
+      "licence": {
+        "id": "CC-BY-NC-ND-3.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.thebureauinvestigates.com/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Work is published under a Creative Commons licence; its \"Use our work\" conditions were not read in this audit."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Work is published under a Creative Commons licence; its \"Use our work\" conditions were not read in this audit."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Work is published under a Creative Commons licence; its \"Use our work\" conditions were not read in this audit."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Work is published under a Creative Commons licence; its \"Use our work\" conditions were not read in this audit."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Work is published under a Creative Commons licence; its \"Use our work\" conditions were not read in this audit."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "UK non-profit; check the use-our-work page, then likely confirmable.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "carbon-brief",
+      "name": "Carbon Brief",
+      "ownerGroup": "carbon-brief",
+      "sourceType": "independent-news",
+      "sections": [
+        "uk",
+        "science-space",
+        "business"
+      ],
+      "homepage": "https://www.carbonbrief.org/",
+      "termsUrl": "https://www.carbonbrief.org/newsletter-sign-up/",
+      "licence": {
+        "id": "CC (unspecified)",
+        "url": "https://www.carbonbrief.org/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.carbonbrief.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "The licence notice allows unadapted material to be reproduced in full for non-commercial use; headline-only display is not clearly covered."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "The licence notice allows unadapted material to be reproduced in full for non-commercial use; headline-only display is not clearly covered."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "The licence notice allows unadapted material to be reproduced in full for non-commercial use; headline-only display is not clearly covered."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "The licence notice allows unadapted material to be reproduced in full for non-commercial use; headline-only display is not clearly covered."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "The licence notice allows unadapted material to be reproduced in full for non-commercial use; headline-only display is not clearly covered."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "UK climate and energy specialist; strong for Science and Business.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "propublica",
+      "name": "ProPublica",
+      "ownerGroup": "propublica",
+      "sourceType": "independent-news",
+      "sections": [
+        "world"
+      ],
+      "homepage": "https://www.propublica.org/",
+      "termsUrl": "https://www.propublica.org/steal-our-stories",
+      "licence": {
+        "id": "CC-BY-NC-ND-3.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.propublica.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say material may not be republished wholesale or automatically; stories must be selected individually."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say material may not be republished wholesale or automatically; stories must be selected individually."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say material may not be republished wholesale or automatically; stories must be selected individually."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say material may not be republished wholesale or automatically; stories must be selected individually."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say material may not be republished wholesale or automatically; stories must be selected individually."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "US investigations; ask whether automated headline links are acceptable.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28",
+      "contact": "licensing@propublica.org"
+    },
+    {
+      "id": "the-new-humanitarian",
+      "name": "The New Humanitarian",
+      "ownerGroup": "the-new-humanitarian",
+      "sourceType": "independent-news",
+      "sections": [
+        "world"
+      ],
+      "homepage": "https://www.thenewhumanitarian.org/",
+      "termsUrl": "https://www.thenewhumanitarian.org/republish-article/262729",
+      "licence": {
+        "id": "CC-BY-NC-ND-4.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.thenewhumanitarian.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say work may not be actively submitted to third-party platforms, apps and curations."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say work may not be actively submitted to third-party platforms, apps and curations."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say work may not be actively submitted to third-party platforms, apps and curations."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say work may not be actively submitted to third-party platforms, apps and curations."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines say work may not be actively submitted to third-party platforms, apps and curations."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Crisis reporting; ask whether a headline-and-link briefing counts as a curation.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "inside-climate-news",
+      "name": "Inside Climate News",
+      "ownerGroup": "inside-climate-news",
+      "sourceType": "independent-news",
+      "sections": [
+        "science-space"
+      ],
+      "homepage": "https://insideclimatenews.org/",
+      "termsUrl": "https://insideclimatenews.org/republishing-guidelines/",
+      "licence": {
+        "id": "CC-BY-NC-ND-3.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://insideclimatenews.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines bar syndication to third-party platforms and automatic or wholesale republishing."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines bar syndication to third-party platforms and automatic or wholesale republishing."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines bar syndication to third-party platforms and automatic or wholesale republishing."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines bar syndication to third-party platforms and automatic or wholesale republishing."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Guidelines bar syndication to third-party platforms and automatic or wholesale republishing."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Ask before any use.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "rest-of-world",
+      "name": "Rest of World",
+      "ownerGroup": "rest-of-world",
+      "sourceType": "independent-news",
+      "sections": [
+        "technology-ai",
+        "business",
+        "world"
+      ],
+      "homepage": "https://restofworld.org/",
+      "termsUrl": "https://restofworld.org/about/licensing-style-guidelines/",
+      "licence": null,
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://restofworld.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Republishing needs an agreement; non-profits may republish free of charge once agreed."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Republishing needs an agreement; non-profits may republish free of charge once agreed."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Republishing needs an agreement; non-profits may republish free of charge once agreed."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Republishing needs an agreement; non-profits may republish free of charge once agreed."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Republishing needs an agreement; non-profits may republish free of charge once agreed."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Strong Technology & AI and Business candidate.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28",
+      "contact": "hello@restofworld.org"
+    },
+    {
+      "id": "the-markup",
+      "name": "The Markup (CalMatters)",
+      "ownerGroup": "calmatters",
+      "sourceType": "independent-news",
+      "sections": [
+        "technology-ai"
+      ],
+      "homepage": "https://themarkup.org/",
+      "termsUrl": "https://themarkup.org/about",
+      "licence": {
+        "id": "CC-BY-NC-ND-4.0",
+        "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://themarkup.org/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-NC-ND 4.0, but the per-story republishing conditions were not verified; now part of CalMatters."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-NC-ND 4.0, but the per-story republishing conditions were not verified; now part of CalMatters."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-NC-ND 4.0, but the per-story republishing conditions were not verified; now part of CalMatters."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-NC-ND 4.0, but the per-story republishing conditions were not verified; now part of CalMatters."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "CC BY-NC-ND 4.0, but the per-story republishing conditions were not verified; now part of CalMatters."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Technology accountability reporting.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "undark",
+      "name": "Undark",
+      "ownerGroup": "undark",
+      "sourceType": "independent-news",
+      "sections": [
+        "science-space"
+      ],
+      "homepage": "https://undark.org/",
+      "termsUrl": "https://undark.org/republishing-guidelines",
+      "licence": null,
+      "feeds": [],
+      "rights": {
+        "fetch": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "No open licence; guidelines bar wholesale republishing and redistribution, and permission can be revoked."
+        },
+        "analyse": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "No open licence; guidelines bar wholesale republishing and redistribution, and permission can be revoked."
+        },
+        "group": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "No open licence; guidelines bar wholesale republishing and redistribution, and permission can be revoked."
+        },
+        "headline": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "No open licence; guidelines bar wholesale republishing and redistribution, and permission can be revoked."
+        },
+        "excerpt": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "No open licence; guidelines bar wholesale republishing and redistribution, and permission can be revoked."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Not usable without a specific agreement.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "gov-uk",
+      "name": "GOV.UK (departments, MoD, regulators)",
+      "ownerGroup": "hm-government",
+      "sourceType": "government",
+      "sections": [
+        "uk",
+        "world",
+        "business",
+        "technology-ai",
+        "science-space"
+      ],
+      "homepage": "https://www.gov.uk/",
+      "termsUrl": "https://www.gov.uk/help/reuse-govuk-content",
+      "licence": {
+        "id": "OGL-UK-3.0",
+        "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://www.gov.uk/search/news-and-communications.atom"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Public Atom feeds; content reusable under the OGL."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL permits adaptation."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL permits adaptation."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL v3.0 unless stated otherwise."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL v3.0.",
+          "maxChars": 400
+        },
+        "images": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Some content is exempt; the image gate checks each item."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Attribution: \"Contains public sector information licensed under the Open Government Licence v3.0.\""
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Licence confirmed in the architecture review.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "uk-parliament",
+      "name": "UK Parliament",
+      "ownerGroup": "uk-parliament",
+      "sourceType": "institution",
+      "sections": [
+        "uk"
+      ],
+      "homepage": "https://www.parliament.uk/",
+      "termsUrl": "https://www.parliament.uk/site-information/copyright/",
+      "licence": {
+        "id": "OPL-UK-3.0",
+        "url": "https://www.parliament.uk/site-information/copyright/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.parliament.uk/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "Open Parliament Licence."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OPL permits adaptation."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OPL permits adaptation."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OPL v3.0 allows copying and publication with attribution."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OPL v3.0.",
+          "maxChars": 400
+        },
+        "images": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Third-party and audiovisual material is excluded."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Attribution: \"Contains Parliamentary information licensed under the Open Parliament Licence v3.0.\"",
+        "Do not present it in a way that discredits either House."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Committee and chamber news.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "ons",
+      "name": "Office for National Statistics",
+      "ownerGroup": "uk-statistics-authority",
+      "sourceType": "government",
+      "sections": [
+        "uk",
+        "business"
+      ],
+      "homepage": "https://www.ons.gov.uk/",
+      "termsUrl": "https://www.ons.gov.uk/news/statementsandletters",
+      "licence": {
+        "id": "OGL-UK-3.0",
+        "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://www.ons.gov.uk/releasecalendar?rss",
+          "discoverFrom": "https://www.ons.gov.uk/releasecalendar"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "All content is under OGL v3.0 except where stated."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL v3.0."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "open-licence",
+          "clause": "OGL v3.0.",
+          "maxChars": 400
+        },
+        "images": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Check per item."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "OGL attribution statement."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Release calendar; market-sensitive releases at 07:00, others at 09:30.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "nasa",
+      "name": "NASA",
+      "ownerGroup": "nasa",
+      "sourceType": "institution",
+      "sections": [
+        "science-space"
+      ],
+      "homepage": "https://www.nasa.gov/",
+      "termsUrl": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "licence": {
+        "id": "NASA-media-guidelines",
+        "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      },
+      "feeds": [
+        {
+          "verified": false,
+          "url": "https://www.nasa.gov/news-release/feed/",
+          "discoverFrom": "https://www.nasa.gov/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "confirmed",
+          "basis": "public-licence-terms",
+          "clause": "News outlets may use NASA content without explicit permission."
+        },
+        "analyse": {
+          "status": "confirmed",
+          "basis": "public-licence-terms",
+          "clause": "As above."
+        },
+        "group": {
+          "status": "confirmed",
+          "basis": "public-licence-terms",
+          "clause": "As above."
+        },
+        "headline": {
+          "status": "confirmed",
+          "basis": "public-licence-terms",
+          "clause": "As above."
+        },
+        "excerpt": {
+          "status": "confirmed",
+          "basis": "public-licence-terms",
+          "clause": "As above.",
+          "maxChars": 400
+        },
+        "images": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "NASA-made images only; logos and third-party images excluded."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [
+        "Logos are not public domain."
+      ],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "not-requested"
+        }
+      },
+      "summary": "Guidelines confirmed in the architecture review.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "bank-of-england",
+      "name": "Bank of England",
+      "ownerGroup": "bank-of-england",
+      "sourceType": "institution",
+      "sections": [
+        "business",
+        "uk"
+      ],
+      "homepage": "https://www.bankofengland.co.uk/",
+      "termsUrl": "https://www.bankofengland.co.uk/legal",
+      "licence": null,
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.bankofengland.co.uk/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Copyright in text, images and data is owned by the Bank; further use needs authorisation from its Communications Division."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Copyright in text, images and data is owned by the Bank; further use needs authorisation from its Communications Division."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Copyright in text, images and data is owned by the Bank; further use needs authorisation from its Communications Division."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Copyright in text, images and data is owned by the Bank; further use needs authorisation from its Communications Division."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Copyright in text, images and data is owned by the Bank; further use needs authorisation from its Communications Division."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Important Business source; ask for headline-link permission.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    },
+    {
+      "id": "esa",
+      "name": "European Space Agency",
+      "ownerGroup": "esa",
+      "sourceType": "institution",
+      "sections": [
+        "science-space"
+      ],
+      "homepage": "https://www.esa.int/",
+      "termsUrl": "https://www.esa.int/kids/Services/Terms_and_conditions",
+      "licence": null,
+      "feeds": [
+        {
+          "verified": false,
+          "discoverFrom": "https://www.esa.int/"
+        }
+      ],
+      "rights": {
+        "fetch": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Website text is offered for personal non-commercial use; only some images and videos are CC BY-SA 3.0 IGO."
+        },
+        "analyse": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Website text is offered for personal non-commercial use; only some images and videos are CC BY-SA 3.0 IGO."
+        },
+        "group": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Website text is offered for personal non-commercial use; only some images and videos are CC BY-SA 3.0 IGO."
+        },
+        "headline": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Website text is offered for personal non-commercial use; only some images and videos are CC BY-SA 3.0 IGO."
+        },
+        "excerpt": {
+          "status": "pending",
+          "basis": "none",
+          "clause": "Website text is offered for personal non-commercial use; only some images and videos are CC BY-SA 3.0 IGO."
+        },
+        "images": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Images are excluded from the licence or belong to third parties."
+        },
+        "embed": {
+          "status": "not-permitted",
+          "basis": "none",
+          "clause": "Not assessed; embeds stay off."
+        }
+      },
+      "conditions": [],
+      "evidence": {
+        "termsArchive": {
+          "status": "pending"
+        },
+        "writtenPermission": {
+          "status": "to-send"
+        }
+      },
+      "summary": "Ask whether headline links are acceptable. Terms seen on the ESA website terms page (kids section); confirm the main-site wording.",
+      "reviewedBy": "claude-m0-audit",
+      "reviewedAt": "2026-11-28",
+      "nextReviewAt": "2027-05-28"
+    }
+  ]
+}
