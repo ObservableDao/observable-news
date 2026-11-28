@@ -1,8 +1,10 @@
 name: benchmark
 # M0 benchmarks. Read-only: no secrets, no writes, no deploy, no schedule.
-# Runs on pull requests that change the pipeline or the register, or by hand.
-# The live job contacts only registered sources whose Fetch right is confirmed,
-# with an identified user agent and robots.txt honoured.
+# * fixtures (synthetic, no network to publishers): pull requests and manual runs.
+# * live (contacts publishers): ONLY a manual run of this workflow on main, by
+#   someone with write access. It fetches only registered sources whose Fetch
+#   right is confirmed, checks robots.txt before every request and redirect,
+#   and identifies itself.
 on:
   pull_request:
     paths:
@@ -43,6 +45,7 @@ jobs:
           retention-days: 30
 
   live:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

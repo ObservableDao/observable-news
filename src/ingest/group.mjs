@@ -31,7 +31,7 @@ export function hamming(a, b) { let x = a ^ b, n = 0; while (x) { x &= x - 1n; n
 const bands = h => [0n, 16n, 32n, 48n].map((s, i) => `${i}:${(h >> s) & 0xffffn}`);
 
 export class Grouper {
-  constructor() { this.byUrl = new Map(); this.buckets = new Map(); this.groups = new Map(); this.next = 1; this.comparisons = 0; }
+  constructor({ nextId = 1 } = {}) { this.byUrl = new Map(); this.buckets = new Map(); this.groups = new Map(); this.next = nextId; this.comparisons = 0; }
   #newGroup(item) {
     const id = `g${this.next++}`;
     this.groups.set(id, { id, firstSeen: item.publishedAt, lastSeen: item.publishedAt, items: [], owners: new Set() });

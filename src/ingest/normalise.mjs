@@ -20,7 +20,16 @@ export function canonicalUrl(raw) {
 }
 
 export const urlHash = url => createHash('sha256').update(url).digest('hex').slice(0, 20);
-const registrable = host => host.split('.').slice(-2).join('.');
+// Item links must point at a host the source owns. No public-suffix guessing:
+// the "last two labels" shortcut wrongly treats bbc.co.uk and evil.co.uk (or any
+// two .org.uk sites) as the same organisation. A link is accepted only if its host
+// is the homepage host or one listed in the source's linkHosts, with www. and
+// the bare host treated as the same. Subdomains are never implied.
+const bare = h => h.toLowerCase().replace(/^www\./, '').replace(/\.$/, '');
+export function allowedHosts(source) {
+  return new Set([new URL(source.homepage).hostname, ...(source.linkHosts || [])].map(bare));
+}
+export const hostAllowed = (host, source) => allowedHosts(source).has(bare(host));
 
 // Returns { item } or { quarantine: reason }.
 export function normaliseItem(raw, source, now) {
@@ -28,9 +37,14 @@ export function normaliseItem(raw, source, now) {
   if (raw.title.length > 300 || (raw.summary || '').length > 20_000) return { quarantine: 'oversized' };
   const url = canonicalUrl(raw.link);
   if (!url) return { quarantine: 'bad-url' };
-  const host = new URL(url).hostname, home = new URL(source.homepage).hostname;
-  if (registrable(host) !== registrable(home)) return { quarantine: 'off-domain-link' };
-  const published = raw.published ? Date.parse(raw.published) : now;
+  if (!hostAllowed(new URL(url).hostname, source)) return { quarantine: 'off-domain-link' };
+  // A date that is missing or cannot be parsed is quarantined, never replaced with "now".
+  const rawDate = raw.publishedRaw ?? raw.published ?? null;
+  if (rawDate === null || rawDate === undefined || rawDate === '') return { quarantine: 'missing-date' };
+  // The feed parser has already applied strict date rules: a raw date it could not read stays invalid.
+  if (raw.publishedRaw && !raw.published) return { quarantine: 'invalid-date' };
+  const published = Date.parse(raw.published ?? rawDate);
+  if (!Number.isFinite(published) || published < Date.UTC(1990, 0, 1)) return { quarantine: 'invalid-date' };
   if (published > now + FUTURE_TOLERANCE_MS) return { quarantine: 'future-date' };
-  return { item: { id: urlHash(url), sourceId: source.id, url, title: raw.title, summary: raw.summary || '', publishedAt: new Date(published).toISOString(), fetchedAt: new Date(now).toISOString(), dated: !!raw.published } };
+  return { item: { id: urlHash(url), sourceId: source.id, url, title: raw.title, summary: raw.summary || '', publishedAt: new Date(published).toISOString(), fetchedAt: new Date(now).toISOString() } };
 }

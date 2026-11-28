@@ -5,7 +5,7 @@ import { normaliseItem } from './normalise.mjs';
 import { applyRights } from './rights.mjs';
 import { Grouper, WINDOW_MS } from './group.mjs';
 
-export const RETENTION_DAYS = 30;
+export const RETENTION_DAYS = 14;   // M0 benchmark decision: 30 days exceeded the 25 MB state limit
 // The stored record keeps only what later steps need. Text is kept only where a
 // right allows it: the title for display or grouping, the excerpt already cut to
 // its licensed length. Source type, sections and owner come from the register.
@@ -17,7 +17,7 @@ export function compact(item, groupId, hash) {
   return rec;
 }
 
-export const emptyState = () => ({ version: 1, items: {}, groups: {}, sources: {}, quarantine: {} });
+export const emptyState = () => ({ version: 1, nextGroupId: 1, items: {}, groups: {}, sources: {}, quarantine: {} });
 
 async function pool(list, n, fn) {
   const out = new Array(list.length); let i = 0;
@@ -27,12 +27,17 @@ async function pool(list, n, fn) {
 
 // fetchSource(source, { etag, lastModified }) → { status: 200|304|error code, body?, etag?, lastModified? }
 export async function collect({ register, state, fetchSource, now = Date.now(), concurrency = 8, retentionDays = RETENTION_DAYS }) {
-  const stats = { feeds: 0, ok: 0, notModified: 0, failed: 0, parsed: 0, newItems: 0, duplicates: 0, stale: 0, quarantined: 0, groupsCreated: 0, joinedExisting: 0, comparisons: 0 };
+  const stats = { feeds: 0, ok: 0, notModified: 0, blocked: 0, failed: 0, parsed: 0, newItems: 0, duplicates: 0, stale: 0, quarantined: 0, groupsCreated: 0, joinedExisting: 0, comparisons: 0 };
   const oldest = now - retentionDays * 86400_000;
   const sources = register.sources.filter(s => s.rights.fetch.status === 'confirmed');
 
   // Rebuild the grouping index from items still inside the window.
-  const grouper = new Grouper();
+  // Group ids must stay unique across all retained history, even when nothing
+  // was collected for longer than the grouping window: continue from the stored
+  // counter, and never below the highest id already in state.
+  let highest = 0;
+  for (const id in state.groups) { const n = Number(id.slice(1)); if (Number.isFinite(n) && n > highest) highest = n; }
+  const grouper = new Grouper({ nextId: Math.max(state.nextGroupId || 1, highest + 1) });
   const recent = Object.values(state.items).filter(it => now - Date.parse(it.publishedAt) <= WINDOW_MS).sort((a, b) => a.publishedAt < b.publishedAt ? -1 : 1);
   for (const it of recent) grouper.seed(it, it.groupId);
   const before = grouper.groups.size;
@@ -46,6 +51,7 @@ export async function collect({ register, state, fetchSource, now = Date.now(), 
   for (const { s, r } of results) {
     stats.feeds++;
     const meta = state.sources[s.id] || { failStreak: 0 };
+    if (r.status === 'blocked') { stats.blocked++; meta.health = 'blocked'; meta.lastError = String(r.code || 'robots'); state.sources[s.id] = meta; continue; }
     if (r.status === 304) { stats.notModified++; meta.failStreak = 0; meta.health = 'ok'; state.sources[s.id] = meta; continue; }
     if (r.status !== 200) { stats.failed++; meta.failStreak = (meta.failStreak || 0) + 1; meta.health = meta.failStreak >= 3 ? 'failing' : 'degraded'; meta.lastError = String(r.code || r.status); state.sources[s.id] = meta; continue; }
     let feed;
@@ -53,7 +59,8 @@ export async function collect({ register, state, fetchSource, now = Date.now(), 
     stats.ok++; meta.failStreak = 0; meta.health = 'ok'; meta.etag = r.etag; meta.lastModified = r.lastModified; state.sources[s.id] = meta;
     for (const raw of feed.items) {
       stats.parsed++;
-      const n = normaliseItem(raw, s, now);
+      let n;
+      try { n = normaliseItem(raw, s, now); } catch { n = { quarantine: 'item-error' }; } // one bad item never stops the run
       if (n.quarantine) { stats.quarantined++; state.quarantine[n.quarantine] = (state.quarantine[n.quarantine] || 0) + 1; continue; }
       // Items older than retention are skipped, or they would be pruned and re-added on every run.
       if (Date.parse(n.item.publishedAt) < oldest) { stats.stale++; continue; }
@@ -67,6 +74,7 @@ export async function collect({ register, state, fetchSource, now = Date.now(), 
     }
   }
   stats.comparisons = grouper.comparisons;
+  state.nextGroupId = grouper.next;
 
   // Update group summaries for touched groups; prune old items and empty groups.
   for (const [gid, n] of added) {

@@ -1,9 +1,10 @@
 # M0 benchmarks
 
 Harness: `node scripts/bench.mjs [--runs 20] [--pagefind]` (recorded synthetic feeds) and
-`node scripts/bench-live.mjs` (real registered feeds and terms archive). Both run in
-`.github/workflows/benchmark.yml` on standard GitHub runners. That workflow is read-only, with no secrets and no schedule;
-results appear in the job summary and as artifacts.
+`node scripts/bench-live.mjs` (real registered feeds and terms archive), in `.github/workflows/benchmark.yml`.
+That workflow is read-only, with no secrets and no schedule. The synthetic job runs on pull requests. The live
+job, which contacts publishers, runs **only when started by hand on `main`**. Every live request goes through
+`src/ingest/fetcher.mjs`, which checks robots.txt before each request and each redirect hop.
 
 Test set-up, as in the architecture: 80 sources, 2,000 items a day, 30 days of history, half the feeds
 answering 304; archive of 5,000 group pages, 300 explainers and 365 editions; every stage 20 times.
@@ -63,6 +64,11 @@ cadence stands. The 30-minute fallback is not needed.
 * **Group pages only for groups with two or more independent publishers**, as the architecture specifies.
   The first draft rendered every active group (9,756 files per publish); now 1,368.
 * **Retention: 14 days** (the architecture's consequence for an oversized state).
+* **Review fixes (PR #8):** robots.txt is checked before every request and redirect (RFC 9309: an unreachable
+  robots.txt means "disallow"); 14-day retention is the code default; item links must be on the source's own host
+  (the "last two labels" shortcut wrongly matched any two `.co.uk` or `.org.uk` sites); missing, invalid or
+  impossible dates are quarantined, since `Date.parse` turned "31 Febtember 2026" into 3 March; group ids continue from
+  a stored counter, so a gap of more than 48 hours cannot reuse old ids.
 * **Stale items are skipped at ingest.** The first live run found a feed whose old items were pruned
   and re-added as new on every run.
 * **Terms evidence gets two hashes:** the raw copy changes on every fetch for dynamic pages, so a hash of the

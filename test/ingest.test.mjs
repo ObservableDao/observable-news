@@ -55,7 +55,7 @@ test('I4 canonical URLs drop tracking and fragments; bad items are quarantined',
 });
 
 test('I5 rights: no headline, excerpt or grouping text without the right', () => {
-  const item = normaliseItem({ title: 'A headline here', link: 'https://news.example.org/a', summary: 'One two three four five six seven eight nine ten eleven twelve' }, SRC, NOW).item;
+  const item = normaliseItem({ title: 'A headline here', link: 'https://news.example.org/a', published: '2026-11-27T09:00:00Z', summary: 'One two three four five six seven eight nine ten eleven twelve' }, SRC, NOW).item;
   const ok = applyRights(item, SRC);
   assert.equal(ok.display.headline, 'A headline here');
   assert.ok(ok.display.excerpt.length <= 40 && ok.display.excerpt.endsWith('…'));

@@ -6,7 +6,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readdirSync, statSync, a
 import { tmpdir, cpus, totalmem } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { collect, emptyState } from '../src/ingest/collect.mjs';
+import { collect, emptyState, RETENTION_DAYS } from '../src/ingest/collect.mjs';
 import { renderLive, renderArchive } from '../src/build/render.mjs';
 import { makeTimeline, recordedResponses, rssFor, archiveInputs, CANARY } from '../bench/fixtures.mjs';
 
@@ -38,15 +38,18 @@ const register = timeline.register;
 // Pre-warm 30 days of state (everything before the last 15 minutes).
 const history = new Map();
 for (const it of timeline.items) if (Date.parse(it.published) < T - 15 * 60_000) { const l = history.get(it.source.id) || []; l.push(it); history.set(it.source.id, l); }
-const warm = await collect({ register, state: emptyState(), now: T - 15 * 60_000, fetchSource: async s => ({ status: 200, body: Buffer.from(rssFor(s, history.get(s.id) || [])) }) });
-const warmJson = JSON.stringify(warm.state);
+// 30 days are built once for the reference measurement; runs then use the configured retention.
+const warm = await collect({ register, state: emptyState(), now: T - 15 * 60_000, retentionDays: 30, fetchSource: async s => ({ status: 200, body: Buffer.from(rssFor(s, history.get(s.id) || [])) }) });
+const warm30Bytes = Buffer.byteLength(JSON.stringify(warm.state));
+const warmed = await collect({ register, state: warm.state, now: T - 15 * 60_000, fetchSource: async () => ({ status: 304 }) }); // prunes to RETENTION_DAYS
+const warmJson = JSON.stringify(warmed.state);
 
 // Recorded responses at T: 50 newest per feed; half the feeds unchanged (304).
 const steady = recordedResponses(timeline, T + 15 * 60_000);
 const coldResponses = recordedResponses(timeline, T + 15 * 60_000, { unchangedShare: 0 });
 const replay = map => async s => map.get(s.id);
 
-const results = { generatedAt: new Date().toISOString(), environment: { node: process.version, platform: process.platform, cpu: cpus()[0]?.model, cores: cpus().length, memoryGB: +(totalmem() / 2 ** 30).toFixed(1), runner: process.env.RUNNER_NAME || null, runId: process.env.GITHUB_RUN_ID || null }, inputs: { sources: 80, itemsPerDay: 2000, historyDays: 30, stateItems: Object.keys(warm.state.items).length, stateGroups: Object.keys(warm.state.groups).length }, stages: {} };
+const results = { generatedAt: new Date().toISOString(), environment: { node: process.version, platform: process.platform, cpu: cpus()[0]?.model, cores: cpus().length, memoryGB: +(totalmem() / 2 ** 30).toFixed(1), runner: process.env.RUNNER_NAME || null, runId: process.env.GITHUB_RUN_ID || null }, inputs: { sources: 80, itemsPerDay: 2000, historyDaysBuilt: 30, retentionDays: RETENTION_DAYS, stateItems: Object.keys(warmed.state.items).length, stateGroups: Object.keys(warmed.state.groups).length }, stages: {} };
 
 let steadyStats;
 const coll = await stage('collection (steady state)', async () => {
@@ -56,9 +59,8 @@ const coll = await stage('collection (steady state)', async () => {
   return JSON.stringify(r.state);
 });
 results.stages.collection = { ...coll.ms, stats: steadyStats, snapshotBytes: Buffer.byteLength(coll.last) };
-// Pre-agreed consequence if the state is too large: prune after 14 days instead of 30.
-const pruned14 = await collect({ register, state: JSON.parse(warmJson), now: T + 15 * 60_000, fetchSource: replay(steady), retentionDays: 14 });
-results.stages.collection.snapshotBytes14d = Buffer.byteLength(JSON.stringify(pruned14.state));
+results.stages.collection.snapshotBytes30d = warm30Bytes;
+results.stages.collection.retentionDays = RETENTION_DAYS;
 results.grouping = { warmItems: warm.stats.newItems, groupsCreated: warm.stats.groupsCreated, joinedExisting: warm.stats.joinedExisting, comparisons: warm.stats.comparisons };
 let coldStats;
 const cold = await stage('collection (cold start)', async () => { const r = await collect({ register, state: emptyState(), now: T + 15 * 60_000, fetchSource: replay(coldResponses) }); coldStats = r.stats; return r; });
@@ -96,8 +98,8 @@ results.thresholds = [
   { measure: 'Live-layer render, p95 (checks and deploy not in M0)', limit: '≤ 360,000 ms', value: results.stages.liveBuild.p95, pass: results.stages.liveBuild.p95 <= 360_000 },
   { measure: 'Full archive build + Pagefind, p95', limit: '≤ 900,000 ms', value: pf ? +(results.stages.archiveBuild.p95 + pf.p95).toFixed(1) : null, pass: pf ? results.stages.archiveBuild.p95 + pf.p95 <= 900_000 : null },
   { measure: 'Static file count at 12 months', limit: '< 15,000', value: staticFiles, pass: pf ? staticFiles < 15_000 : null },
-  { measure: 'State file size at 12 months (30-day retention, uncompressed)', limit: '< 25 MB', value: +(results.stages.collection.snapshotBytes / 2 ** 20).toFixed(2), pass: results.stages.collection.snapshotBytes < 25 * 2 ** 20, consequence: 'prune after 14 days' },
-  { measure: 'State file size with the 14-day consequence applied', limit: '< 25 MB', value: +(results.stages.collection.snapshotBytes14d / 2 ** 20).toFixed(2), pass: results.stages.collection.snapshotBytes14d < 25 * 2 ** 20 },
+  { measure: `State file size at 12 months (configured ${RETENTION_DAYS}-day retention, uncompressed)`, limit: '< 25 MB', value: +(results.stages.collection.snapshotBytes / 2 ** 20).toFixed(2), pass: results.stages.collection.snapshotBytes < 25 * 2 ** 20 },
+  { measure: 'Reference: state at 30-day retention (failed; 14 days is now the default)', limit: '< 25 MB', value: +(results.stages.collection.snapshotBytes30d / 2 ** 20).toFixed(2), pass: results.stages.collection.snapshotBytes30d < 25 * 2 ** 20, consequence: 'applied: 14-day retention' },
   { measure: 'Canary headlines without display rights in output', limit: '0', value: results.stages.liveBuild.canaryHits, pass: results.stages.liveBuild.canaryHits === 0 },
 ];
 rmSync(liveDir, { recursive: true, force: true }); rmSync(archDir, { recursive: true, force: true });
