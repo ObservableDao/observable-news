@@ -1,9 +1,10 @@
 // One publish run: discover the next draft, validate it, acknowledge it with a
 // signed checkpoint, publish it as an immutable release, then re-verify what
 // GitHub now holds. Holds no local state: everything is read from releases.
+import { randomInt } from 'node:crypto';
 import { acceptBundle } from '../bundle/accept.mjs';
 import { readHead, verifyPublication, tagFor, seqFromTag, BUNDLE_ASSETS, CHECKPOINT_ASSETS, DEFAULT_GATE_DEPTH,
-  buildAcceptCheckpoint, buildSkipCheckpoint, encodeCheckpoint } from './checkpoint.mjs';
+  buildAcceptCheckpoint, buildSkipCheckpoint, encodeCheckpoint, MAX_SEQUENCE, GENESIS } from './checkpoint.mjs';
 
 const sameSet = (a, b) => a.length === b.length && [...a].sort().join('\n') === [...b].sort().join('\n');
 
@@ -12,6 +13,7 @@ export async function runPublish({ store, deskTrust, checkpointTrust, checkpoint
   const state = await readHead(store, checkpointTrust, { now, listing });
   if (!state.ok) return { status: 'halted', stage: 'state', reason: state.problems[0].problem, at: state.problems[0].sequence };
   const head = state.head;
+  if (head.sequence >= MAX_SEQUENCE) return { status: 'halted', stage: 'state', reason: 'sequence-space-exhausted', at: head.sequence };
   const next = head.sequence + 1, tag = tagFor(next);
 
   const drafts = listing.filter(r => r.draft && r.tag === tag);
@@ -55,21 +57,50 @@ export async function runPublish({ store, deskTrust, checkpointTrust, checkpoint
   return { status: 'accepted', sequence: next, checkpointSha256: v.checkpointSha256, bundleSha256: cp.bundleSha256 };
 }
 
+// Candidate offsets above the starting point for a skip: first the next 20
+// sequences, then one random sequence in each doubling band. An attacker who
+// burns tag names (publish then delete) cannot predict which ones to burn, so
+// blocking recovery would mean burning whole bands; the gap this leaves in the
+// 99,999,999-number sequence space stays small in practice.
+export function* probeOffsets(random = randomInt) {
+  for (let i = 1; i <= 20; i++) yield i;
+  for (let k = 5; k <= 26; k++) yield 2 ** k + random(2 ** k);
+}
+
 // Manual recovery only (workflow_dispatch by the repository owner).
-// Records a signed skip on top of the last verifiable head so that the
-// chain can continue after a forged, deleted or swapped publication.
-export async function runSkip({ store, checkpointTrust, checkpointKey, checkpointKeyId, runId, reason, expectBase, now = Date.now() }) {
+// 1. Find the highest verifiable head (the base) and require the operator to confirm it.
+// 2. Delete every published pub-* release above the base that does not verify
+//    (forged, corrupted, swapped, not immutable). Deleting cannot reopen a
+//    sequence, because GitHub never reuses the tag name, and it removes the
+//    blocker however high its sequence number is.
+// 3. Record a signed skip on top of the base and any genuine releases above it,
+//    at the first tag name that has never been used.
+export async function runSkip({ store, checkpointTrust, checkpointKey, checkpointKeyId, runId, reason, expectBase, now = Date.now(), random = randomInt }) {
   const listing = await store.list();
-  const pubSeqs = listing.filter(r => !r.draft && seqFromTag(r.tag) !== null).map(r => seqFromTag(r.tag));
-  const top = pubSeqs.length ? Math.max(...pubSeqs) : 0;
+  const published = listing.filter(r => !r.draft && seqFromTag(r.tag) !== null);
+  const candidates = [...new Set(published.map(r => seqFromTag(r.tag)))].sort((a, b) => b - a);
   let base = null;
-  for (let s = top; s >= 0 && !base; s--) {
+  for (const s of candidates) {
     const st = await readHead(store, checkpointTrust, { now, listing, maxSequence: s, depth: DEFAULT_GATE_DEPTH });
-    if (st.ok && st.head.sequence === s) base = st.head;
+    if (st.ok && st.head.sequence === s) { base = st.head; break; }
   }
-  if (!base) return { status: 'halted', reason: 'no-verifiable-base' };
+  if (!base) base = { ...GENESIS };
   if (expectBase !== base.sequence) return { status: 'refused', reason: 'base-not-confirmed', base: base.sequence };
-  for (let seq = Math.max(top, base.sequence) + 1, tries = 0; tries < 20; seq++, tries++) {
+
+  const removed = []; let start = base.sequence;
+  for (const r of published) {
+    const seq = seqFromTag(r.tag);
+    if (seq <= base.sequence) continue;
+    const v = await verifyPublication(store, r, checkpointTrust, now);
+    // Keep genuine releases cut off from the chain, and releases signed by a
+    // revoked checkpoint key (history is preserved, never trusted): skip above them.
+    if (v.ok || v.problem === 'checkpoint-key-revoked') start = Math.max(start, seq);
+    else { await store.remove(r.id); removed.push({ sequence: seq, problem: v.problem }); }
+  }
+
+  for (const offset of probeOffsets(random)) {
+    const seq = start + offset;
+    if (seq > MAX_SEQUENCE) break;
     const cp = buildSkipCheckpoint({ sequence: seq, prev: base, reason, createdAt: new Date(now).toISOString(), runId, keyId: checkpointKeyId });
     const enc = encodeCheckpoint(cp, checkpointKey);
     const id = await store.createDraft(tagFor(seq));
@@ -80,9 +111,12 @@ export async function runSkip({ store, checkpointTrust, checkpointKey, checkpoin
       if (e.code === 'tag-already-used') continue;
       throw e;
     }
-    return { status: 'skipped', base: base.sequence, sequence: seq, voided: seq - base.sequence - 1 };
+    // Prove the system is operational again before reporting success.
+    const after = await readHead(store, checkpointTrust, { now });
+    if (!after.ok || after.head.sequence !== seq) return { status: 'halted', reason: 'recovery-not-effective', problems: after.problems, removed: removed.length };
+    return { status: 'skipped', base: base.sequence, sequence: seq, removed: removed.length, removedSequences: removed.slice(0, 50) };
   }
-  return { status: 'halted', reason: 'no-free-sequence' };
+  return { status: 'halted', reason: 'no-free-sequence', base: base.sequence, removed: removed.length };
 }
 
 export { CHECKPOINT_ASSETS };

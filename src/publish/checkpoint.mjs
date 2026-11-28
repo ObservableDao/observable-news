@@ -24,8 +24,16 @@ export const CHECKPOINT_ASSETS = ['checkpoint.json', 'checkpoint.sig'];
 export const DEFAULT_GATE_DEPTH = 3;          // the daily audit verifies the whole chain
 export const SKIP_REASONS = ['forged-release', 'deleted-release', 'asset-swap', 'operator'];
 
-export const tagFor = seq => `pub-${String(seq).padStart(8, '0')}`;
-export const seqFromTag = tag => { const m = /^pub-(\d{8})$/.exec(tag || ''); return m ? Number(m[1]) : null; };
+// Sequences are 1..99,999,999 and always written as exactly 8 digits. Any other
+// pub-* tag (pub-00000000, pub-100000000, pub-1, ...) is not a publication and
+// is ignored, so an out-of-range tag can neither become the head nor block it.
+export const MAX_SEQUENCE = 99_999_999;
+export const isSequence = n => Number.isSafeInteger(n) && n >= 1 && n <= MAX_SEQUENCE;
+export const tagFor = seq => {
+  if (!isSequence(seq)) throw new RangeError(`sequence out of range: ${seq}`);
+  return `pub-${String(seq).padStart(8, '0')}`;
+};
+export const seqFromTag = tag => { const m = /^pub-(\d{8})$/.exec(tag || ''); const n = m ? Number(m[1]) : null; return isSequence(n) ? n : null; };
 const sameSet = (a, b) => a.length === b.length && [...a].sort().join('\n') === [...b].sort().join('\n');
 
 export function buildAcceptCheckpoint({ sequence, prev, bundleBytes, manifestBytes, signatureBytes, deskKeyId, createdAt, runId, keyId }) {

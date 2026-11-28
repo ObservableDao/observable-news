@@ -13,7 +13,8 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FsReleaseStore } from '../src/transport/fs-store.mjs';
-import { tagFor, buildAcceptCheckpoint, encodeCheckpoint, GENESIS } from '../src/publish/checkpoint.mjs';
+import { tagFor, seqFromTag, buildAcceptCheckpoint, buildSkipCheckpoint, encodeCheckpoint, readHead, GENESIS, MAX_SEQUENCE } from '../src/publish/checkpoint.mjs';
+import { buildManifest } from '../src/bundle/signature.mjs';
 import { runPublish } from '../src/publish/gate.mjs';
 import { makeKey, validContent } from './helpers.mjs';
 
@@ -189,4 +190,98 @@ test('X9 simulator model check: documented immutable-release rules', async () =>
   const again = await s.createDraft('pub-00000009');
   await assert.rejects(s.publish(again), { code: 'tag-already-used' });              // ...but the tag is burned
   assert.equal(GENESIS.sequence, 0);
+});
+
+// Independent review, finding 2: a forged release at an extreme sequence must
+// not wedge publication. Every step below is a separate process except the attacker.
+async function forge(w, tag) {
+  const attacker = makeKey('checkpoint-test');
+  const cp = buildAcceptCheckpoint({ sequence: 1, prev: { sequence: 0, checkpointSha256: 'genesis' }, bundleBytes: Buffer.from('x'), manifestBytes: Buffer.from('y'),
+    signatureBytes: Buffer.from('z'), deskKeyId: 'desk-test', createdAt: new Date().toISOString(), runId: 'evil', keyId: 'checkpoint-test' });
+  const enc = encodeCheckpoint(cp, attacker.privateKey);
+  const id = await w.store.createDraft(tag);
+  for (const [n, b] of Object.entries({ 'bundle.json': Buffer.from('x'), 'manifest.json': Buffer.from('y'), 'signature.txt': Buffer.from('z'), 'checkpoint.json': enc.json, 'checkpoint.sig': enc.sig })) await w.store.upload(id, n, b);
+  await w.store.publish(id);
+}
+function assertOperational(w, rounds = 2) {
+  for (let i = 0; i < rounds; i++) {
+    const e = w.exportRun(); assert.equal(e.status, 0, e.stderr);
+    const p = w.publishRun(); assert.deepEqual([p.status, p.out.status, p.out.sequence], [0, 'accepted', e.out.sequence]);
+    assert.equal(w.ackRun(e.out.sequence, e.out.bundleSha256).out.state, 'acknowledged');
+  }
+  const idle = w.publishRun(); assert.deepEqual([idle.status, idle.out.status], [0, 'nothing-to-do']);
+}
+
+test('X10 forged pub-99999999: recovery removes it and publishing genuinely resumes', async () => {
+  const w = world(); w.publishOne(); w.publishOne();
+  await forge(w, 'pub-99999999');
+  const halted = w.publishRun();
+  assert.deepEqual([halted.status, halted.out.reason, halted.out.at], [2, 'checkpoint-signature-invalid', 99999999]);
+  assert.equal(w.exportRun().status, 3, 'desk refuses to export while halted');
+  const rec = w.recoverRun('forged-release', 2);
+  assert.deepEqual([rec.status, rec.out.status, rec.out.base, rec.out.sequence, rec.out.removed], [0, 'skipped', 2, 3, 1]);
+  assert.equal((await w.store.list()).some(r => r.tag === 'pub-99999999'), false, 'forged release removed');
+  const st = await readHead(w.store, [w.cpk.entry], { depth: Infinity });
+  assert.deepEqual([st.ok, st.head.sequence, st.verified], [true, 3, [3, 2, 1]]);
+  assertOperational(w);
+});
+
+test('X11 out-of-range and malformed pub tags are ignored and cannot halt or wedge', async () => {
+  const w = world(); w.publishOne();
+  for (const tag of ['pub-100000000', 'pub-00000000', 'pub-1', 'pub-0000001a']) await forge(w, tag);
+  assert.equal(w.publishRun().out.status, 'nothing-to-do');
+  assertOperational(w, 1);
+  assert.throws(() => tagFor(MAX_SEQUENCE + 1), RangeError);
+  assert.throws(() => tagFor(0), RangeError);
+  assert.equal(seqFromTag('pub-100000000'), null);
+  assert.throws(() => buildManifest({ bundleBytes: Buffer.from('x'), sequence: MAX_SEQUENCE + 1, basedOn: { sequence: MAX_SEQUENCE, checkpointSha256: 'x' }, sourceCommit: 'a'.repeat(40), createdAt: 'x', keyId: 'k' }));
+});
+
+test('X12 recovery still finds a free sequence after an attacker burns many tag names', async () => {
+  const w = world(); w.publishOne(); w.publishOne();
+  for (let seq = 3; seq <= 40; seq++) { // publish then delete: every name 3..40 is burned and invisible
+    const id = await w.store.createDraft(tagFor(seq)); await w.store.publish(id); await w.store.remove(id);
+  }
+  await forge(w, tagFor(41));
+  assert.equal(w.publishRun().out.status, 'halted');
+  const rec = w.recoverRun('forged-release', 2);
+  assert.equal(rec.out.status, 'skipped', JSON.stringify(rec.out));
+  assert.ok(rec.out.sequence > 41 && rec.out.sequence < 2 ** 8, `skip landed at ${rec.out.sequence}`);
+  assertOperational(w);
+});
+
+test('X13 a forged release together with a deleted head is recovered in one run', async () => {
+  const w = world(); w.publishOne(); w.publishOne(); w.publishOne();
+  await w.store.remove((await published(w.store, tagFor(3))).id);
+  await forge(w, 'pub-99999999');
+  assert.equal(w.recoverRun('forged-release', 3).out.reason, 'base-not-confirmed');
+  const rec = w.recoverRun('forged-release', 2);
+  assert.deepEqual([rec.out.status, rec.out.base, rec.out.sequence], ['skipped', 2, 4]);
+  assertOperational(w);
+});
+
+test('X14 the full sequence space halts cleanly instead of overflowing', async () => {
+  const w = world();
+  const cp = buildSkipCheckpoint({ sequence: MAX_SEQUENCE, prev: GENESIS, reason: 'operator', createdAt: new Date().toISOString(), runId: 't', keyId: 'checkpoint-test' });
+  const enc = encodeCheckpoint(cp, w.cpk.privateKey);
+  const id = await w.store.createDraft(tagFor(MAX_SEQUENCE)); await w.store.upload(id, 'checkpoint.json', enc.json); await w.store.upload(id, 'checkpoint.sig', enc.sig); await w.store.publish(id);
+  const r = w.publishRun();
+  assert.deepEqual([r.status, r.out.reason], [2, 'sequence-space-exhausted']);
+});
+
+test('X15 a revoked checkpoint key halts publishing; recovery keeps the old releases and resumes', async () => {
+  const w = world(); w.publishOne(); w.publishOne();
+  const replacement = makeKey('checkpoint-next');
+  writeFileSync(w.cpTrust, JSON.stringify({ keys: [{ ...w.cpk.entry, revokedAt: new Date(Date.now() - 1000).toISOString() }, replacement.entry] }));
+  assert.equal(w.publishRun().out.reason, 'checkpoint-key-revoked');
+  w.cpk = replacement;                                     // operator switches the production secret
+  const r = spawnSync(process.execPath, [join(repo, 'scripts/recover-skip.mjs'), '--store', w.spec, '--reason', 'operator', '--expect-base', '0', '--checkpoint-signers', w.cpTrust],
+    { cwd: mkdtempSync(join(tmpdir(), 'runner-')), encoding: 'utf8', env: { PATH: process.env.PATH, CHECKPOINT_SIGNING_KEY: replacement.pem, CHECKPOINT_KEY_ID: 'checkpoint-next' } });
+  const out = lastJSON(r.stdout);
+  assert.deepEqual([out.status, out.sequence, out.removed], ['skipped', 3, 0]);
+  for (const t of [tagFor(1), tagFor(2)]) assert.ok(await published(w.store, t), `${t} kept`);
+  const e = w.exportRun(); assert.equal(e.out.sequence, 4);
+  const p = spawnSync(process.execPath, [join(repo, 'scripts/publish-run.mjs'), '--store', w.spec, '--desk-signers', w.deskTrust, '--checkpoint-signers', w.cpTrust],
+    { cwd: mkdtempSync(join(tmpdir(), 'runner-')), encoding: 'utf8', env: { PATH: process.env.PATH, CHECKPOINT_SIGNING_KEY: replacement.pem, CHECKPOINT_KEY_ID: 'checkpoint-next' } });
+  assert.equal(lastJSON(p.stdout).status, 'accepted');
 });
