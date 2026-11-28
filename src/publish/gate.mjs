@@ -3,7 +3,8 @@
 // GitHub now holds. Holds no local state: everything is read from releases.
 import { randomInt } from 'node:crypto';
 import { acceptBundle } from '../bundle/accept.mjs';
-import { readHead, verifyPublication, tagFor, seqFromTag, BUNDLE_ASSETS, CHECKPOINT_ASSETS, DEFAULT_GATE_DEPTH,
+import { verifySignedObject } from '../bundle/signature.mjs';
+import { readHead, verifyPublication, tagFor, seqFromTag, CHECKPOINT_DOMAIN, BUNDLE_ASSETS, CHECKPOINT_ASSETS, DEFAULT_GATE_DEPTH,
   buildAcceptCheckpoint, buildSkipCheckpoint, encodeCheckpoint, MAX_SEQUENCE, GENESIS } from './checkpoint.mjs';
 
 const sameSet = (a, b) => a.length === b.length && [...a].sort().join('\n') === [...b].sort().join('\n');
@@ -41,6 +42,10 @@ export async function runPublish({ store, deskTrust, checkpointTrust, checkpoint
   const cp = buildAcceptCheckpoint({ sequence: next, prev: head, bundleBytes, manifestBytes, signatureBytes,
     deskKeyId: manifest.keyId, createdAt: new Date(now).toISOString(), runId, keyId: checkpointKeyId });
   const enc = encodeCheckpoint(cp, checkpointKey);
+  // Never consume a sequence with a checkpoint that would not verify (retired,
+  // not-yet-valid, revoked or unlisted key): stop before anything is published.
+  const selfCheck = verifySignedObject({ domain: CHECKPOINT_DOMAIN, obj: cp, signature: enc.sig.toString('utf8').trim(), keyId: cp.keyId, createdAt: cp.createdAt, trustStore: checkpointTrust, now });
+  if (selfCheck) return { status: 'halted', stage: 'signing', reason: 'checkpoint-key-not-valid', detail: selfCheck, at: next };
   await store.upload(draft.id, 'checkpoint.json', enc.json);
   await store.upload(draft.id, 'checkpoint.sig', enc.sig);
   try {
